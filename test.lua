@@ -1,0 +1,1 @@
+LogToConsole("ini test")
