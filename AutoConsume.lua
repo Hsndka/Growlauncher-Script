@@ -134,6 +134,7 @@ end
 waitDelay = 10000
 running = false
 local HKeyx = "MukbangHsn11"
+local loaded = false
 
 function cek()
    local val = getVar()
@@ -259,6 +260,8 @@ function errorDialog(icon, text1, text2)
         "add_spacer|small|",
         "end_dialog|invalidKey|||",
         "add_spacer|small|",
+        "add_smalltext|`9[Having trouble?]|",
+        "add_url_button|reportLink|`cReport bug here!``|noflags|https://discord.gg/3xKNPbB5qd|Visit the HsnGL's Discord?|0|0|",
         "add_custom_margin|x:300;y:0|\nadd_custom_button|DUMMY_PADDING_X|textLabel:``;state:disabled;middle_colour:0;border_colour:0;|"
     }, "\n"))
 end
@@ -277,7 +280,7 @@ function mainLoop()
     editToggle("collectfilter_enable", false)
     
     if val.item == 0 then
-      stopScript(1494, "What are you eating?", "Blank is not edible")
+      stopScript(1494, "What are you eating?", "Blank is not edible :D")
       return
     end  
     
@@ -341,9 +344,10 @@ addHook(function(type, name, value)
 local val = getVar()
 if name == "loadBtn" then
   if getValue(2, "key_input") == HKeyx then
+    loaded = true
     Hsnconsume = Hsnconsume_setting
     addIntoModule(Hsnconsume, "HsnGL")
-    msg("Script Loaded")
+    growtopia.notify("`c[HsnGL] Script Loaded")
   else
      growtopia.sendDialog(table.concat({
         "set_default_color|`c",
@@ -356,11 +360,10 @@ if name == "loadBtn" then
         "reset_placement_x|",
         "add_spacer|small|",
         "add_quick_exit|",
-        "add_textbox|`wDiscord `9@hsndika`0 or `9Discord Server`0:|",
-        "add_text_input|discord||https://discord.gg/btYfTfYpp|28|",
-        "add_smalltext|`w[click link to copy]|",
-        "end_dialog|invalidKey|||",
         "add_spacer|small|",
+        "end_dialog|invalidKey|||",
+        "add_smalltext|`9[Click button below]|",
+        "add_url_button|keyLink|`cHsnGL's Discord``|noflags|https://discord.gg/3xKNPbB5qd|Visit the HsnGL's Discord?|0|0|",
         "add_custom_margin|x:300;y:0|\nadd_custom_button|DUMMY_PADDING_X|textLabel:``;state:disabled;middle_colour:0;border_colour:0;|"
     }, "\n"))
     return
@@ -387,12 +390,16 @@ elseif name == "btnStart" and getValue(0, "btnStart") then
       running = false
       editToggle("collectfilter_enable", false)
       editToggle("ModFly", false)
-      msg("`c[HsnGL] Auto Stopped")
+      growtopia.notify("`c[HsnGL] Auto Stopped")
+      log("`c[HsnGL] Auto Consume Stopped")
     end  
   elseif name == "delay" then
-    growtopia.notify("`c[HsnGL] Delay set to : "..getValue(1, "delay"))
-    
+    if loaded then
+      growtopia.notify("`c[HsnGL] Delay set to : "..getValue(1, "delay"))
+    end
   elseif name == "item_pick" then
-    growtopia.notify("`c[HsnGL] Item set to : "..val.name)
+    if loaded then
+      growtopia.notify("`c[HsnGL] Item set to : "..val.name)
+    end
   end  
 end, "OnValue")
