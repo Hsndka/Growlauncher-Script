@@ -37,7 +37,7 @@ local Hsnconsume_load = [[
       },
       {
           "type": "label",
-          "text": "https://discord.gg/btYfTfYpp"
+          "text": "https://discord.gg/3xKNPbB5qd"
       },
       {
           "type": "divider"
