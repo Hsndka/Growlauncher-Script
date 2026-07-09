@@ -2,7 +2,7 @@ local buyerID = tostring(getDiscordID())
 
 local buyerList = {
     ["636196321232945152"] = "Author",
-	["562894447315124227"] = "Admin
+	["562894447315124227"] = "Admin"
 }
 
 function isWhitelisted(playerID)
