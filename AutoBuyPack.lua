@@ -633,7 +633,7 @@ addHook(function(type, name, value)
     editValue("hsnstore_counterBuy", "Purchased :")
     ost("GET DATA is ON")
   elseif name == "hsnstore_welcomeDialog" then
-	ost("Added Auto Buy Pack by HsnGL"
+	ost("Added Auto Buy Pack by HsnGL")
 				
   elseif name == "hsnstore_debugBtn" and not getValue(0, "hsnstore_debugBtn") then
     debug = false
