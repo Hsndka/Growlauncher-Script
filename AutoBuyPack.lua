@@ -1,9 +1,40 @@
-sendDialog({
+local buyerID = tostring(getDiscordID())
+
+local buyerList = {
+    ["636196321232945152"] = "Author"
+}
+
+function isWhitelisted(playerID)
+  if buyerList[playerID] then
+    return true, buyerList[playerID] -- return true + nama
+  else
+    return false, nil
+  end
+end
+Sleep(1000)
+sendNotification("Verifying...")
+Sleep(5000)
+if isWhitelisted(buyerID) then
+  sendNotification("Verified, Welcome ".. buyerList[buyerID])
+else
+  log("Not Verified")
+  return
+end
+
+--[[sendDialog({
     title = "Auto Buy Store Items by HsnGL",
     message = "BETA VERSION (not fully tested)\n[ID]\nScript ini masih dalam tahap pengembangan. Selama masa pengembangan, script akan digratisan hingga waktu yang belum ditentukan. Jika menemukan bug tolong dm discord saya @hsndika.\n[EN]\nThis script is still in beta. It will be free during development until further notice. If you find any bugs, please DM me on Discord @hsndika",
     confirm = "Understand",
     alias = "dialogConfirm"
+})]]
+
+sendDialog({
+    title = "Auto Buy Store Items by HsnGL",
+    message = "Welcome, "..buyerList[buyerID].."\nHow to use script:\n1. Go to an EMPTY WORLD\n2. Get item data\n3. Adjust the Settings\n4. Click START button\n\nIf you find any bugs please DM me on Discord @hsndika",
+    confirm = "Ok",
+	alias = "hsnstore_welcomeDialog"
 })
+
 													   	--[[
 ============================================================
 === Module
@@ -600,7 +631,9 @@ addHook(function(type, name, value)
     editValue("hsnstore_labelPrice","Pack Price :")
     editValue("hsnstore_counterBuy", "Purchased :")
     ost("GET DATA is ON")
-    
+  elseif name == "hsnstore_welcomeDialog" then
+	ost("Added Auto Buy Pack by HsnGL"
+				
   elseif name == "hsnstore_debugBtn" and not getValue(0, "hsnstore_debugBtn") then
     debug = false
     ost("GET DATA is OFF")
