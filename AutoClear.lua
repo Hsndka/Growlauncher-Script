@@ -2,7 +2,8 @@ local buyerID = tostring(getDiscordID())
 
 local buyerList = {
     ["636196321232945152"] = "Author",
-	["562894447315124227"] = "Admin"
+	["562894447315124227"] = "Admin",
+	["1038445236608831508"] = "voltranf"
 }
 
 function cekMember(playerID)
