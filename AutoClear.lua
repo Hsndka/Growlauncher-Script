@@ -39,12 +39,12 @@ Sleep(5000)
 local premium = false
 
 if cekMember(buyerID) then
-  dialogBuilder("Auto Clear World v1.0 by HsnGL", "Verified, Welcome ".. buyerList[buyerID].."\n\nStatus : Premium\n\nFeatures:\n - Auto Clear all world types ✔\n - Multi worlds ✔\n - No Key required ✔\n - Auto save water ✔\n - Auto collect and save drop item ✔\n - Auto reconnect ✔", "OK")
+  dialogBuilder("Auto Clear World v2.0 by HsnGL", "Verified, Welcome ".. buyerList[buyerID].."\n\nStatus : Premium\n\nFeatures:\n - Auto Clear all world types ✔\n - Multi worlds ✔\n - No Key required ✔\n - Auto save water ✔\n - Auto collect and save drop item ✔\n - Auto reconnect ✔", "OK")
   premium = true
   log("[HsnGL] Added Auto Clear : Premium")
   sendNotification("[HsnGL] Added Auto Clear : Premium")
 else
-  dialogBuilder("Auto Clear World v1.0 by HsnGL", "Welcome Free User\n\nStatus : Free\n\nFeatures:\n - Auto Clear all world types ✔\n - Auto save water ✔\n - Multi worlds ❌\n - No Key required ❌\n - Auto collect and save drop item ✔\n - Auto reconnect ❌", "OK")
+  dialogBuilder("Auto Clear World v2.0 by HsnGL", "Welcome Free User\n\nStatus : Free\n\nFeatures:\n - Auto Clear all world types ✔\n - Auto save water ✔\n - Multi worlds ❌\n - No Key required ❌\n - Auto collect and save drop item ✔\n - Auto reconnect ❌", "OK")
   premium = false
   log("[HsnGL] Added Auto Clear : Free")
   sendNotification("[HsnGL] Added Auto Clear : Free")
