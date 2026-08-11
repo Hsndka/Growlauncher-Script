@@ -7,7 +7,6 @@ return function(matchVersion) -- terima key dari luar
 		})			
       return false
    end
-end
 
 local buyerID = tostring(getDiscordID())
 
@@ -1509,3 +1508,4 @@ addHook(function(type, name, value)
       end      
    end    
 end, "OnValue")
+end
