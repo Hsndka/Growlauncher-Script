@@ -1,13 +1,3 @@
-return function(matchVersion) -- terima key dari luar
-  if matchVersion ~= "HSNSC2.0" then
-      sendDialog({
-			title = "Auto Clear 1.3 by HsnGL\nNew version available!", 
-            message = "Get it from Growlauncher's Script Hub.\n\nHaving trouble?\nReport bugs or problem at my Discord Server.\n\nDiscord : @hsndika\n[https://discord.gg/3xKNPbB5qd]", 
-            confirm = "OK"
-		})			
-      return false
-   end
-
 local buyerID = tostring(getDiscordID())
 
 local buyerList = {
@@ -82,7 +72,7 @@ local Hsnclear = [[
       },
       {
           "type": "label",
-          "text": "Script Version: 1.4"
+          "text": "Script Version: v2"
       },
       {
           "type": "label",
@@ -1508,4 +1498,3 @@ addHook(function(type, name, value)
       end      
    end    
 end, "OnValue")
-end
