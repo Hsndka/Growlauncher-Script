@@ -36,13 +36,15 @@ Sleep(1000)
 sendNotification("Verifying...")
 Sleep(5000)
 
-if matchVersion ~= "HSNSC2.0" then
-   dialogBuilder("Auto Clear 1.3 by HsnGL\nNew version available!", 
-   "Get it from Growlauncher's Script Hub.\n\nHaving trouble?\nReport bugs or problem at my Discord Server.\n\nDiscord : @hsndika\n[https://discord.gg/3xKNPbB5qd]", 
-   "OK")
-   return false
+return function(matchVersion) -- terima key dari luar
+  if matchVersion ~= "HSNSC2.0" then
+      dialogBuilder("Auto Clear 1.3 by HsnGL\nNew version available!", 
+      "Get it from Growlauncher's Script Hub.\n\nHaving trouble?\nReport bugs or problem at my Discord Server.\n\nDiscord : @hsndika\n[https://discord.gg/3xKNPbB5qd]", 
+      "OK")
+      return false
+   end
 end
-   
+
 local premium = false
 
 if cekMember(buyerID) then
