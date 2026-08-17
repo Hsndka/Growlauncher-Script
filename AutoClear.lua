@@ -343,7 +343,7 @@ local hsnclear_key = [[
 ]]
 
 local hsnclear_mode = hsnclear_key
-local Key777 = "HsnClear144"
+local Key777 = "HsnClear90"
 
 if premium then
     addIntoModule(Hsnclear, "HsnGL")
