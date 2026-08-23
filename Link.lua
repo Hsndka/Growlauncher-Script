@@ -1,0 +1,23 @@
+growtopia.sendDialog(table.concat({
+    "set_default_color|`w",
+    "set_border_color|112,86,191,255",
+    "set_bg_color|43,34,74,200",
+    "add_image_button|gazette_DiscordServer|interface/large/gazette/gazette_5columns_social_btn01.rttex|7imageslayout20|https://discord.gg/3xKNPbB5qd|Would you like to join our Discord Server?|",
+    "add_custom_margin|x:120|",
+    "add_textbox|`3[HsnGL Discord]|left|",
+    "add_smalltext|Join Discord Server to get|",
+    "add_smalltext|`9Key Password`` and more|",
+    "add_smalltext|`2FREE`` and `4PREMIUM`` scripts!|",
+    "add_spacer|small|",
+    "add_custom_break|",
+    "reset_placement_x|",
+    "add_custom_margin|x:-143|",
+    "add_image_button|gazette_Youtube|interface/large/gazette/gazette_5columns_btn04.rttex|7imageslayout20|https://www.youtube.com/HsnHL007|Would you like to open this in Youtube?|",
+    "reset_placement_x|",
+    "add_custom_margin|x:140|",
+    "add_textbox|`4[HsnGL Youtube]|left|",
+    "add_smalltext|Visit Youtube channel to see|",
+    "add_smalltext|Script Showcase!|",
+    "add_quick_exit|",
+    "end_dialog|hsn_gazatte|||"
+}, "\n"))
