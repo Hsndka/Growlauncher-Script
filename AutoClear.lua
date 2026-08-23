@@ -1,4 +1,4 @@
-load(fetch("https://raw.githubusercontent.com/Hsndka/Growlauncher-Script/main/GeneralModule.lua")()
+load(fetch("https://raw.githubusercontent.com/Hsndka/Growlauncher-Script/main/GeneralModule.lua"))()
 
 local buyerID = tostring(getDiscordID())
 
