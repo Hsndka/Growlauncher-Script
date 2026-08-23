@@ -97,6 +97,6 @@ addIntoModule(Hsngeneral, "HsnGL")
 addHook(function(type, name, value)
    if name == "hsngeneral_link" and value == true then
       load(fetch(RAW_URL))()
-      editToggle("hsngeneral_link", false)
+      editValue("hsngeneral_link", false)
    end   
 end, "OnValue")
