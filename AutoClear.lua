@@ -1,3 +1,5 @@
+load(fetch("https://raw.githubusercontent.com/Hsndka/Growlauncher-Script/main/GeneralModule.lua")()
+
 local buyerID = tostring(getDiscordID())
 
 local buyerList = {
@@ -312,32 +314,30 @@ local hsnclear_key = [[
       {
           "type": "label",
           "text": ""
+      },
+	  {
+          "type": "label",
+          "text": ""
       },    
       {
           "type": "tooltip",
-          "text": "How to get Key? (FREE!)",
+          "text": "Join my Discord Server to get Key! (FREE)",
           "support_text": "",
           "background": true,
-          "icon": "Lightbulb"
-      },
-      {
-          "type": "tooltip",
-          "text": "Join my Discord Server!\n\nLINK :\n",
-          "support_text": "",
-          "background": false,
-          "icon": "AddLink"
+          "icon": "VpnKey"
       },
       {
           "type": "divider"
       },
       {
-          "type": "label",
-          "text": "https://discord.gg/3xKNPbB5qd"
+          "type": "toggle_button",
+          "text": "Join Discord",
+          "default": false,
+          "alias": "hsngeneral_link"
       },
       {
           "type": "divider"
-      }
-         
+      }    
 ]    
 }
 ]]
