@@ -12,7 +12,7 @@ growtopia.sendDialog(table.concat({
     "add_custom_break|",
     "reset_placement_x|",
     "add_custom_margin|x:-143|",
-    "add_image_button|gazette_Youtube|interface/large/gazette/gazette_5columns_btn04.rttex|7imageslayout20|https://www.youtube.com/HsnHL007|Would you like to open this in Youtube?|",
+    "add_image_button|gazette_Youtube|interface/large/gazette/gazette_5columns_btn04.rttex|7imageslayout20|https://www.youtube.com/HsnGL007|Would you like to open this in Youtube?|",
     "reset_placement_x|",
     "add_custom_margin|x:140|",
     "add_textbox|`4[HsnGL Youtube]|left|",
