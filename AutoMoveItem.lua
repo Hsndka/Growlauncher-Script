@@ -567,9 +567,10 @@ function drop(id)
       stopScript("")
       return false
    end   
-   
+
    dropPos[gv.dx .. ":" .. gv.dy] = true
-   
+   dropPos[gv.dx + 1 .. ":" .. gv.dy] = true
+    
    return cek(id) <= 0
 end   
 
