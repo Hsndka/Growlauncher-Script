@@ -386,7 +386,7 @@ function fp(x, y)
 end
 
 function collect(id, x, y)
-   local radius = 1
+   local radius = 2
    
    if not getPos() then
       return false
@@ -424,20 +424,19 @@ function take()
       local before = cek(gv.item)
       local timeout = 0
       
-      Sleep(rd(gv.delay))
       notif("Collecting")
       collect(obj.id, obX, obY)
       
       repeat
-         Sleep(100)
+         Sleep(10)
          timeout = timeout + 1
          
-         if timeout % 10 == 0 then
+         if timeout % 100 == 0 and timeout / 100 >= 5 then
             notif("Waiting for auto collect (" ..
                math.floor(timeout / 10) .. "/10)")
          end
       until cek(gv.item) > before
-         or timeout >= 100
+         or timeout >= 1000
          or not running
       
       if not running then
@@ -445,7 +444,7 @@ function take()
          return false
       end
       
-      if timeout >= 100 and cek(gv.item) <= before then
+      if timeout >= 1000 and cek(gv.item) <= before then
          return false
       end
       
@@ -497,8 +496,7 @@ function drop(id)
    if isFull then
       isFull = false
       
-      local x, y = gv.dx, gv.dy
-      local newX, newY = x - 1, y -1
+      local newX, newY = gv.dx - 1, gv.dy -1
       
       if newX < 0 or newY < 0 then
          stopScript("Invalid coordinate!.")
@@ -545,8 +543,7 @@ function drop(id)
    if isFull then
       isFull = false
       
-      local x, y = gv.dx, gv.dy
-      local newX, newY = x - 1, y -1
+      local newX, newY = gv.dx - 1, gv.dy -1
       
       if newX < 0 or newY < 0 then
          stopScript("Invalid coordinate!.")
@@ -567,9 +564,6 @@ function drop(id)
       stopScript("")
       return false
    end   
-
-   dropPos[gv.dx .. ":" .. gv.dy] = true
-   dropPos[gv.dx + 1 .. ":" .. gv.dy] = true
     
    return cek(id) <= 0
 end   
@@ -634,7 +628,7 @@ function mainLoop()
          Sleep(rd(gv.delay))
          
          if not fp(gv.dx, gv.dy) then
-            stopScript("Failed to Findpath")
+            stopScript("Failed to Findpath ["..gv.dx..", "..gv.dy.."]")
             return false
          end
          
@@ -643,6 +637,9 @@ function mainLoop()
             return false
          end   
          
+         dropPos[gv.dx .. ":" .. gv.dy] = true
+         dropPos[gv.dx + 1 .. ":" .. gv.dy] = true
+   
          Sleep(rd(gv.delay))
       elseif cek(gv.item) <= 0 then
          if not warp(takeWorlds[twIndex]) then
