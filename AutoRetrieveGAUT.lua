@@ -201,7 +201,7 @@ function retrieve(item, sucker, x, y, count)
       if not running then
          return false
       end   
-      Sleep(100)
+      Sleep(10)
    until popup2 or not GetLocal()
    
    popup2 = false
@@ -224,7 +224,7 @@ function retrieve(item, sucker, x, y, count)
    }, "\n"))
    
    repeat
-      Sleep(180)
+      Sleep(10)
       if not running then
          return false
       end   
@@ -241,7 +241,7 @@ function drop(id)
    growtopia.dropItem(id)
    
    repeat
-      Sleep(100)
+      Sleep(10)
       if not running then
          return false
       end   
@@ -278,7 +278,7 @@ function drop(id)
       growtopia.confirmDropItem(id, cek(id))
       
       repeat
-         Sleep(100)
+         Sleep(10)
          if not running then
             return false
          end   
