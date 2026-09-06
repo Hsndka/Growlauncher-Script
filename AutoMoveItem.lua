@@ -393,8 +393,9 @@ function collect(id, x, y)
    end
    
    local px, py = getPos()
+   local cx, cy = x//32, y//32
       
-   if math.abs(x - px) <= radius and math.abs(y - py) <= radius then
+   if math.abs(cx - px) <= radius and math.abs(cy - py) <= radius then
       spr(11, id, x, y)
    end 
 end
@@ -425,7 +426,7 @@ function take()
       local timeout = 0
       
       notif("Collecting")
-      collect(obj.id, obX, obY)
+      collect(obj.id, obj.posX, obj.posY)
       
       repeat
          Sleep(10)
