@@ -70,7 +70,7 @@ local Hsngaut = [[
           "type": "toggle_button",
           "text": "Join Discord",
           "default": false,
-          "alias": "hsngeneral_link"
+          "alias": "hsngaut_link"
       },
       {
           "type": "divider"
@@ -89,7 +89,7 @@ local globalX, globalY = 0, 0
 local item = 0
 local amount = 0
 local sucker = 0
-local key = "DearGAUT"
+local key = "FixedGAUT"
 local keyInput = ""
 
 local RAW_URL = "https://raw.githubusercontent.com/Hsndka/Growlauncher-Script/main/Link.lua"
@@ -126,6 +126,7 @@ function resetValue()
    isBlocked, isFull, isDrop = false, false, false
    globalX, globalY = 0, 0
    item, amount, sucker = 0, 0, 0
+   running, hooks = false, false
 end
 
 function ost(text)
@@ -296,6 +297,7 @@ function drop(id)
    end  
 end       
 
+resetValue()
 
 function mainLoop()
    while running do
@@ -326,7 +328,7 @@ function mainLoop()
          
          spr(3, 32, globalX, globalY)
          repeat
-            Sleep(180)
+            Sleep(10)
             if not running then
                return false
             end   
@@ -350,7 +352,7 @@ function mainLoop()
 end         
 
 addHook(function(var)
-   if var.v1 == "OnDialogRequest" and (w(var.v2):find("add_button|retrieveitem|Retrieve Items") or w(var.v2):find("add_textbox|`6You are already carrying")) then
+   if var.v1 == "OnDialogRequest" and (w(var.v2):find("add_button|retrieveitem|Retrieve Item") or w(var.v2):find("add_textbox|`6You are already carrying")) then
       local x, y = w(var.v2):match("embed_data|tilex|(%d+)\nembed_data|tiley|(%d+)")
       local items = w(var.v2):match("add_label_with_icon|small|`2(.-)``")
       local suckers = w(var.v2):match("end_dialog|(.-)|Close")
@@ -417,8 +419,22 @@ addHook(function(var)
       sendVariant(newVar)
       
       return true
-   elseif var.v1 == "OnDialogRequest" and w(var.v2):find("end_dialog|itemremovedfromsucker|Close") and hooks then
+   elseif var.v1 == "OnDialogRequest" and w(var.v2):find("end_dialog|itemremovedfromsucker|Close") then
       popup2 = true
+      
+      if not hooks then
+         local d = var.v2
+         local x, y = w(d):match("embed_data|tilex|(%d+)\nembed_data|tiley|(%d+)")
+         local id = GetTile(x, y).fg
+         local modif = w(d):gsub("add_spacer|small|", "\nset_default_color|`w\nset_border_color|112,86,191,255\nset_bg_color|43,34,74,200\nadd_custom_button|NIXEL|state:disabled;icon:"..id..";|\nadd_textbox|Auto Retrieve GAUT|\nadd_smalltext|Script By HsnGL|\nadd_custom_break|\nreset_placement_x|\nadd_spacer|small|", 1)
+         
+         local newVar = {}
+         newVar.v1 = "OnDialogRequest"
+         newVar.v2 = modif
+      
+         sendVariant(newVar)
+      end
+         
       return true
    elseif var.v1 == "OnDialogRequest" and w(var.v2):find("add_textbox|How many to drop") and hooks then
       isDrop = true
@@ -434,8 +450,8 @@ end, "OnVariant")
 addHook(function(type, name, value)
    if name == "hsngaut_startBtn" then
       if value == true and key == getValue(2, "hsngaut_key") then
-         running = true
          resetValue()
+         running = true
          wn(db):set("Key", getValue(2, "hsngaut_key"))
          wn(db):save()
          growtopia.notify("`c[HsnGL] Auto retrieve enabled.")
@@ -456,8 +472,8 @@ addHook(function(type, name, value)
          running = false
          ost("Auto retrieve disabled")  
       end   
-   elseif name == "hsngeneral_link" and value == true then
+   elseif name == "hsngaut_link" and value == true then
       load(fetch(RAW_URL))()
-      editToggle("hsngeneral_link", false)
+      editToggle("hsngaut_link", false)
    end   
 end, "OnValue")
