@@ -1,5 +1,3 @@
-load(fetch("https://raw.githubusercontent.com/Hsndka/Growlauncher-Script/main/GeneralModule.lua"))()
-
 addCategory("HsnGL", "FileOpen")
 
 sendNotification("Auto Move Item by HsnGL added")
