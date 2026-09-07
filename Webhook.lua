@@ -14,6 +14,7 @@ local Webhook = {}
 
 -- =========================================
 -- MENTION
+-- Untuk pesan biasa
 -- =========================================
 
 function Webhook.mention(userID)
@@ -26,12 +27,14 @@ end
 
 setmetatable(Webhook, {
     __call = function(_, message)
+
         return send(
             workerURL
             .. "/?mode=text"
             .. "&message="
             .. urlEncode(message)
         )
+
     end
 })
 
@@ -53,7 +56,9 @@ function Webhook.embed(title, description)
     -- =====================================
 
     function embed:color(value)
+
         self._color = value
+
         return self
     end
 
@@ -62,7 +67,9 @@ function Webhook.embed(title, description)
     -- =====================================
 
     function embed:footer(text)
+
         self._footer = text
+
         return self
     end
 
@@ -71,7 +78,9 @@ function Webhook.embed(title, description)
     -- =====================================
 
     function embed:thumbnail(url)
+
         self._thumbnail = url
+
         return self
     end
 
@@ -80,7 +89,9 @@ function Webhook.embed(title, description)
     -- =====================================
 
     function embed:image(url)
+
         self._image = url
+
         return self
     end
 
@@ -89,6 +100,7 @@ function Webhook.embed(title, description)
     -- =====================================
 
     function embed:field(name, value, inline)
+
         table.insert(self.fields, {
             name = name,
             value = value,
@@ -100,10 +112,18 @@ function Webhook.embed(title, description)
 
     -- =====================================
     -- MENTION
+    --
+    -- Mention akan dikirim sebagai
+    -- content DI LUAR embed.
     -- =====================================
 
     function embed:mention(userID)
-        table.insert(self.mentions, tostring(userID))
+
+        table.insert(
+            self.mentions,
+            tostring(userID)
+        )
+
         return self
     end
 
@@ -113,51 +133,86 @@ function Webhook.embed(title, description)
 
     function embed:send()
 
-        local url = workerURL .. "/?mode=embed"
+        local url =
+            workerURL
+            .. "/?mode=embed"
 
-        -- Title
+        -- ---------------------------------
+        -- TITLE
+        -- ---------------------------------
+
         if self.title then
+
             url = url
                 .. "&title="
                 .. urlEncode(self.title)
+
         end
 
-        -- Description
+        -- ---------------------------------
+        -- DESCRIPTION
+        -- ---------------------------------
+
         if self.description then
+
             url = url
                 .. "&message="
                 .. urlEncode(self.description)
+
         end
 
-        -- Color
+        -- ---------------------------------
+        -- COLOR
+        -- ---------------------------------
+
         if self._color then
+
             url = url
                 .. "&color="
                 .. tostring(self._color)
+
         end
 
-        -- Footer
+        -- ---------------------------------
+        -- FOOTER
+        -- ---------------------------------
+
         if self._footer then
+
             url = url
                 .. "&footer="
                 .. urlEncode(self._footer)
+
         end
 
-        -- Thumbnail
+        -- ---------------------------------
+        -- THUMBNAIL
+        -- ---------------------------------
+
         if self._thumbnail then
+
             url = url
                 .. "&thumbnail="
                 .. urlEncode(self._thumbnail)
+
         end
 
-        -- Image
+        -- ---------------------------------
+        -- IMAGE
+        -- ---------------------------------
+
         if self._image then
+
             url = url
                 .. "&image="
                 .. urlEncode(self._image)
+
         end
 
-        -- Fields
+        -- ---------------------------------
+        -- FIELDS
+        -- ---------------------------------
+
         for _, field in ipairs(self.fields) do
 
             url = url
@@ -172,11 +227,16 @@ function Webhook.embed(title, description)
 
         end
 
-        -- Mentions
+        -- ---------------------------------
+        -- MENTIONS
+        -- ---------------------------------
+
         for _, userID in ipairs(self.mentions) do
+
             url = url
                 .. "&mention="
                 .. urlEncode(userID)
+
         end
 
         return send(url)
