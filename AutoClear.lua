@@ -1,5 +1,3 @@
-load(fetch("https://raw.githubusercontent.com/Hsndka/Growlauncher-Script/main/GeneralModule.lua"))()
-
 local buyerID = tostring(getDiscordID())
 
 local buyerList = {
@@ -371,6 +369,19 @@ function getVar()
       height = getValue(1, "hsnclear_sizeY") - 1
       }
   return cache
+end
+
+local RAW_WEBHOOK = "https://raw.githubusercontent.com/Hsndka/Growlauncher-Script/main/Webhook.lua"
+local Webhook = load(fetch(RAW_WEBHOOK))()
+
+function webhook(method)
+   if method == 1 then
+      Webhook(">>> **Auto Clear Webhook**\nUser :\n<@"..buyerID..">\nStatus :\n<:online:1545964731955937290> RUNNING\nAction :\n<:break:1545964825258102945>  Clearing\n\n```js\n"..os.date("%d/%m/%y %H:%M").."```")
+   elseif method == 2 then    
+      Webhook(">>> **Auto Clear Webhook**\nUser :\n<@"..buyerID..">\nStatus :\n<:offline:1545964640008405133> STOPPED/ERROR\nAction :\n<:offline:1545964640008405133> STOPPED/ERROR\n\n```js\n"..os.date("%d/%m/%y %H:%M").."```")
+   elseif method == 3 then
+      Webhook(">>> **Auto Clear Webhook**\nUser :\n<@"..buyerID..">\nStatus :\n<:tested:1526677186843644035> FINISHED\nAction :\n<:sleep:1546513215461130250>  Idle\n\n```js\n"..os.date("%d/%m/%y %H:%M").."```")
+   end      
 end
 
 local y = 0
@@ -1275,7 +1286,8 @@ function clear(world)
    elseif not premium and y >= getVar().height then
       editToggle("hsnclear_startBtn", false)
       dialogBuilder("Done", whiteless(world):upper().." has been successfully cleared\n\nGet Premium to unlock Multi World.\nThank You.", "OK")
-      return "stop"
+	  webhook(3)
+      return
    end    
 end
 
@@ -1321,7 +1333,7 @@ function mainLoop()
             ost("Select block first!")
             return
         end    
-
+   webhook(1)
    while running and Index <= #worldList do
       local result = clear(worldList[Index])
       isLocked = false
@@ -1336,11 +1348,13 @@ function mainLoop()
             editValue("hsnclear_currentQueue", "Current Queue: "..Index)
             isLocked = false
          else
+			webhook(2)
             isLocked = false
             return false
          end  
       elseif result == "stop" then
          editValue("hsnclear_startBtn", false)
+		 webhook(2)
          return false
       end
    end
@@ -1351,6 +1365,7 @@ function mainLoop()
       running = false
       editToggle("hsnclear_startBtn", false)
       dialogBuilder("Done", "All selected worlds have been cleared successfully.\n\nPlease share your experience at our Discord Server.\nThank You.", "OK")
+	  webhook(3)
    end
 end
 
