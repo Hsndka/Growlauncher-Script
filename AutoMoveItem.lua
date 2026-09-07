@@ -353,9 +353,13 @@ function warp(world)
    return GetWorldName() == filter
 end
 
+function collision(x, y)
+   return getTile(x, y).collidable
+end
+  
 function fp(x, y)
    local gv = getVar()
-   
+   local range = 6
    if not getPos() then
       return false
    end
@@ -366,16 +370,32 @@ function fp(x, y)
       return true
    end
    
-   while math.abs(y - py) > 6 do
-      py = py + (y - py > 0 and 6 or -6)
-      FindPath(px, py)
-      Sleep(rd(200))
+   while math.abs(y - py) > range do
+      py = py + (y - py > 0 and range or range*-1)
+      
+      if not running then
+         stopScript("")
+         return false
+      end   
+   
+      if not collision(px, py) then
+         FindPath(px, py)
+         Sleep(rd(200))
+      end
    end
   
-   while math.abs(x - px) > 6 do
-      px = px + (x - px > 0 and 6 or -6)
-      FindPath(px, py)
-      Sleep(rd(200))
+   while math.abs(x - px) > range do
+      px = px + (x - px > 0 and range or range*-1)
+      
+      if not running then
+         stopScript("")
+         return false
+      end   
+      
+      if not collision(px, py) then
+         FindPath(px, py)
+         Sleep(rd(200))
+      end
    end
   
    FindPath(x, y)
@@ -401,6 +421,7 @@ end
 function take()
    local gv = getVar()
    local found = false
+   local before = cek(gv.item)
    
    for _, obj in pairs(GetObjectList()) do
       if obj.itemid ~= gv.item then
@@ -420,30 +441,11 @@ function take()
          goto continue
       end
       
-      local before = cek(gv.item)
-      local timeout = 0
-      
-      notif("Collecting")
       collect(obj.id, obj.posX, obj.posY)
+      Sleep(100)
       
-      repeat
-         Sleep(10)
-         timeout = timeout + 1
-         
-         if timeout % 100 == 0 and timeout / 100 >= 5 then
-            notif("Waiting for auto collect (" ..
-               math.floor(timeout / 10) .. "/10)")
-         end
-      until cek(gv.item) > before
-         or timeout >= 1000
-         or not running
-      
-      if not running then
+      if not running or not getLocal() then
          stopScript("")
-         return false
-      end
-      
-      if timeout >= 1000 and cek(gv.item) <= before then
          return false
       end
       
