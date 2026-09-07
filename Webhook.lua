@@ -12,7 +12,18 @@ end
 
 local Webhook = {}
 
--- Pesan biasa
+-- =========================================
+-- MENTION
+-- =========================================
+
+function Webhook.mention(userID)
+    return "<@" .. tostring(userID) .. ">"
+end
+
+-- =========================================
+-- PESAN BIASA
+-- =========================================
+
 setmetatable(Webhook, {
     __call = function(_, message)
         return send(
@@ -24,33 +35,58 @@ setmetatable(Webhook, {
     end
 })
 
--- Buat embed
+-- =========================================
+-- EMBED
+-- =========================================
+
 function Webhook.embed(title, description)
+
     local embed = {
         title = title,
         description = description,
-        fields = {}
+        fields = {},
+        mentions = {}
     }
+
+    -- =====================================
+    -- COLOR
+    -- =====================================
 
     function embed:color(value)
         self._color = value
         return self
     end
 
+    -- =====================================
+    -- FOOTER
+    -- =====================================
+
     function embed:footer(text)
         self._footer = text
         return self
     end
+
+    -- =====================================
+    -- THUMBNAIL
+    -- =====================================
 
     function embed:thumbnail(url)
         self._thumbnail = url
         return self
     end
 
+    -- =====================================
+    -- IMAGE
+    -- =====================================
+
     function embed:image(url)
         self._image = url
         return self
     end
+
+    -- =====================================
+    -- FIELD
+    -- =====================================
 
     function embed:field(name, value, inline)
         table.insert(self.fields, {
@@ -62,38 +98,85 @@ function Webhook.embed(title, description)
         return self
     end
 
+    -- =====================================
+    -- MENTION
+    -- =====================================
+
+    function embed:mention(userID)
+        table.insert(self.mentions, tostring(userID))
+        return self
+    end
+
+    -- =====================================
+    -- SEND
+    -- =====================================
+
     function embed:send()
+
         local url = workerURL .. "/?mode=embed"
 
+        -- Title
         if self.title then
-            url = url .. "&title=" .. urlEncode(self.title)
-        end
-
-        if self.description then
-            url = url .. "&message=" .. urlEncode(self.description)
-        end
-
-        if self._color then
-            url = url .. "&color=" .. tostring(self._color)
-        end
-
-        if self._footer then
-            url = url .. "&footer=" .. urlEncode(self._footer)
-        end
-
-        if self._thumbnail then
-            url = url .. "&thumbnail=" .. urlEncode(self._thumbnail)
-        end
-
-        if self._image then
-            url = url .. "&image=" .. urlEncode(self._image)
-        end
-
-        for _, field in ipairs(self.fields) do
             url = url
-                .. "&field_name=" .. urlEncode(field.name)
-                .. "&field_value=" .. urlEncode(field.value)
-                .. "&field_inline=" .. tostring(field.inline)
+                .. "&title="
+                .. urlEncode(self.title)
+        end
+
+        -- Description
+        if self.description then
+            url = url
+                .. "&message="
+                .. urlEncode(self.description)
+        end
+
+        -- Color
+        if self._color then
+            url = url
+                .. "&color="
+                .. tostring(self._color)
+        end
+
+        -- Footer
+        if self._footer then
+            url = url
+                .. "&footer="
+                .. urlEncode(self._footer)
+        end
+
+        -- Thumbnail
+        if self._thumbnail then
+            url = url
+                .. "&thumbnail="
+                .. urlEncode(self._thumbnail)
+        end
+
+        -- Image
+        if self._image then
+            url = url
+                .. "&image="
+                .. urlEncode(self._image)
+        end
+
+        -- Fields
+        for _, field in ipairs(self.fields) do
+
+            url = url
+                .. "&field_name="
+                .. urlEncode(field.name)
+
+                .. "&field_value="
+                .. urlEncode(field.value)
+
+                .. "&field_inline="
+                .. tostring(field.inline)
+
+        end
+
+        -- Mentions
+        for _, userID in ipairs(self.mentions) do
+            url = url
+                .. "&mention="
+                .. urlEncode(userID)
         end
 
         return send(url)
