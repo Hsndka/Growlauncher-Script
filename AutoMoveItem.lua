@@ -39,6 +39,15 @@ local Hsnmove = [[
                  "type": "item_picker"
               },
               {
+                  "alias": "hsnmove_limit",
+                  "text": "Item move limit",
+                  "icon": "Inventory",
+                  "placeholder": "0 for infinite",
+                  "default": 0,
+                  "type": "input_int",
+                  "label": "0 for infinite"
+              },
+              {
                  "type": "dropdown",
                  "text": "Drop Method:",
                  "icon": "AutoMode",
@@ -610,6 +619,8 @@ function mainLoop()
    
    saveCfg()
    loadTakeWorlds()
+   local moveLimit = getValue(1, "hsnmove_limit")
+   local moveCount = 0
    dropPos = {}
    
    while running do
@@ -633,11 +644,18 @@ function mainLoop()
             return false
          end
          
+         moveCount = moveCount + cek(gv.item)
+         
          if not drop(gv.item) then
             stopScript("Failed to drop")
             return false
          end   
          
+         if moveCount >= moveLimit and moveLimit ~= 0 then
+            stopScript("Auto Finished!\n Item move limit has been reached.")
+            return false
+         end
+            
          dropPos[gv.dx .. ":" .. gv.dy] = true
          dropPos[gv.dx + 1 .. ":" .. gv.dy] = true
    
