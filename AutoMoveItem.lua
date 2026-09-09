@@ -190,7 +190,7 @@ addIntoModule(Hsnmove, "HsnGL")
 
 local running = false
 local isDrop, isFull, isBlocked = false, false, false
-local horizontal = false
+local horizontal = true
 local takeWorlds = {}
 local dropPos = {}
 local twIndex = 1
