@@ -505,7 +505,7 @@ function drop(id)
       
    if isFull then
       isFull = false
-      
+      sendNotification("x="..gv.dx..", y="..gv.dy..", horizontal="..tostring(horizontal))
       if horizontal then
          local newX = gv.dx - 1
       
@@ -559,7 +559,7 @@ function drop(id)
    
    if isFull then
       isFull = false
-      
+      sendNotification("x="..gv.dx..", y="..gv.dy..", horizontal="..tostring(horizontal))
       if horizontal then
          local newX = gv.dx - 1
       
