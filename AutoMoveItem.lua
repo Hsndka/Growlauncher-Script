@@ -506,16 +506,23 @@ function drop(id)
    if isFull then
       isFull = false
       
-      local newX, newY = gv.dx - 1, gv.dy -1
-      
-      if newX < 0 or newY < 0 then
-         stopScript("Invalid coordinate!.")
-         return false
-      end   
-      
       if horizontal then
+         local newX = gv.dx - 1
+      
+         if newX < 0 then
+            stopScript("Invalid coordinate!.")
+            return false
+         end   
+      
          editValue("hsnmove_dwX", newX)
       else
+         local newY = gv.dy - 1
+      
+         if newY < 0 then
+            stopScript("Invalid coordinate!.")
+            return false
+         end   
+      
          editValue("hsnmove_dwY", newY)
       end
          
