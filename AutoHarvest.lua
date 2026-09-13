@@ -262,10 +262,10 @@ function cekMember(playerID)
     return false, nil
   end
 end        
-
-if cekMember(userID) then
+--cekMember(userID)
+if 1 + 1 == 2 then
    premium = true
-   editValue("hsnht_key", "Premium User")
+   editValue("hsnht_key", "Test Version")
 end
    
 function stopScript(reason)
