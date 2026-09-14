@@ -3,6 +3,7 @@ local buyerID = tostring(getDiscordID())
 local buyerList = {
     ["636196321232945152"] = "Author",
 	["562894447315124227"] = "Admin",
+	["788035861618622495"] = "Jeqi",
 	["549528733183115275"] = "LostSky",
 	["1542963873814937672"] = "allman",
 	["1038445236608831508"] = "voltranf"
