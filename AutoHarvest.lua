@@ -560,10 +560,12 @@ function drop(id)
       stopScript("")
       return false
    end
-   
-   dropPos[c.dx .. ":" .. c.dy] = true
-   dropPos[c.dx + 1 .. ":" .. c.dy] = true
-   
+
+   if collect_ht then
+      dropPos[c.dx .. ":" .. c.dy] = true
+      dropPos[(c.dx + 1) .. ":" .. c.dy] = true
+   end
+		
    return cek(id) <= 0
 end
 
@@ -833,9 +835,11 @@ function harvest()
    editToggle("collectfilter_onlytake", true)
    editToggle("collectfilter_enable", true)
    
-   dropPos[getVar().dx .. ":" .. getVar().dy] = true
-   dropPos[getVar().dx + 1 .. ":" .. getVar().dy] = true
-   
+   if collect_ht then
+	  dropPos[getVar().dx .. ":" .. getVar().dy] = true
+      dropPos[(getVar().dx + 1) .. ":" .. getVar().dy] = true
+   end
+	
    while y < maxY do
       local again = true
       local retry = 0
