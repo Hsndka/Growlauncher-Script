@@ -1,6 +1,13 @@
-addCategory("HsnGL", "FileOpen")
+local buyerList = {
+    ["636196321232945152"] = "Author",
+	["562894447315124227"] = "Admin",
+    ["782958317084737566"] = "Tester00",
+    ["757840754453512212"] = "Mayo"
+}
 
-sendNotification("Auto Harvest by HsnGL added")
+sendNotification("[HsnGL] Loading script...")
+
+addCategory("HsnGL", "FileOpen")
 
 local Hsnht = [[
 {
@@ -30,6 +37,7 @@ local Hsnht = [[
           "text": "World Settings",
           "support_text": "Click to open World settings.",
           "type": "dialog",
+          "fill": true,
           "background": false,
           "menu": [
               {
@@ -256,11 +264,13 @@ editValue("hsnht_key", keyInput)
 editValue("hsnht_worldList", worldName)
 editValue("hsnht_dropPos", dropPosition)
 
-local buyerList = {
-    ["636196321232945152"] = "Author",
-	["562894447315124227"] = "Admin",
-    ["757840754453512212"] = "Mayo"
-}
+function dialogBuilder(t, m, c)
+    sendDialog({
+        title = t,
+        confirm = c,
+        message = m
+    })
+end
 
 function cekMember(playerID)
   if buyerList[playerID] then
@@ -269,12 +279,20 @@ function cekMember(playerID)
     return false, nil
   end
 end        
---cekMember(userID)
-if 1 + 1 == 2 then
+
+if cekMember(userID) then
+   dialogBuilder("Auto Harvest by HsnGL", "Verified, Welcome ".. buyerList[userID].."\n\nStatus : Premium\n\nFeatures:\n - Auto Harvest Tree & Provider ✔\n - Multi worlds ✔\n - No Key required ✔\n - Auto collect and drop item ✔\n - Auto reconnect ✔\n - Webhook notification ✔", "OK")
    premium = true
+   notif("Auto Harvest: Premium added!")
    editValue("hsnht_key", "Test Version")
-end
-   
+else
+   dialogBuilder("Auto Harvest by HsnGL", "Welcome Free User\n\nStatus : Free\n\nFeatures:\n - Auto Auto Harvest Tree & Provider ✔\n - Auto collect and save drop item ✔\n - Webhook notification ✔\n - Multi worlds ❌\n - No Key required ❌\n - Auto reconnect ❌", "OK")
+   premium = false
+   notif("Auto Harvest: Free added!")
+end 
+
+premium = true
+
 function stopScript(reason)
    running = false
    isDrop, isFull, isBlocked = false, false, false
@@ -827,7 +845,6 @@ function harvest()
 
    y = 0
    maxY = 60
-   dropPos = {}
    
    local hx, hy = getPos()
       
@@ -974,12 +991,8 @@ function harvest()
                         return false
                      end   
                      
-                     local tile = getTile(x1, y1)
-
-                     if tile.fg == id and tile.readyharvest then
-                        Punch(x1, y1)
-                        Sleep(rd(c.delay))
-                     end
+                     Punch(x1, y1)
+                     Sleep(rd(c.delay))
                   end
 
                   if valid2 then
@@ -988,12 +1001,8 @@ function harvest()
                         return false
                      end   
                      
-                     local tile = getTile(x2, y2)
-
-                     if tile.fg == id and tile.readyharvest then
-                        Punch(x2, y2)
-                        Sleep(rd(c.delay))
-                     end
+                     Punch(x2, y2)
+                     Sleep(rd(c.delay))
                   end
 
                   if valid3 then
@@ -1002,12 +1011,8 @@ function harvest()
                         return false
                      end   
                      
-                     local tile = getTile(x3, y3)
-
-                     if tile.fg == id and tile.readyharvest then
-                        Punch(x3, y3)
-                        Sleep(rd(c.delay))
-                     end
+                     Punch(x3, y3)
+                     Sleep(rd(c.delay))
                   end
                   
                   again = true
