@@ -118,6 +118,13 @@ local Hsnht = [[
           ]   
       },
       {
+          "type": "toggle",
+          "text": "Webhook Notification",
+          "description": "Enable Webhook notifications",
+          "default": true,
+          "alias": "hsnht_webhook"
+      },
+      {
           "type": "slider",
           "text": "Harvest Delay :",
           "default": 180,
@@ -170,7 +177,7 @@ local premium = false
 local collect_ht = false
 local takeGems = false
 local takeFuel = false
-
+local sendWebhook = true
 local isBlocked, isFull, isDrop = false, false, false
 local collectThreadRunning = false
 local pendingDrop = {}
@@ -717,7 +724,7 @@ end
       
 function webhook(method, reason)
    runThread(function()
-      if not Webhook then
+      if not Webhook and not sendWebhook then
          return false
       end
       
@@ -1120,7 +1127,9 @@ addHook(function(type, name, value)
    elseif name == "hsnht_gems" and collect_ht then
       takeGems = value
    elseif name == "hsnht_fuel" then
-      takeFuel = value   
+      takeFuel = value    
+   elseif name == "hsnht_webhook" then
+	  sendWebhook = value
    elseif name == "hsnht_refresh" then
       loadWorlds()   
    elseif name == "hsnht_getWorld" then
