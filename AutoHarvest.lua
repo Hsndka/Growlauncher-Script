@@ -724,7 +724,7 @@ end
       
 function webhook(method, reason)
    runThread(function()
-      if not Webhook and not sendWebhook then
+      if not Webhook or not sendWebhook then
          return false
       end
       
