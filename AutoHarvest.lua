@@ -76,7 +76,53 @@ local Hsnht = [[
                   "text": "REFRESH LIST"
               }
           ]
-      },    
+      },
+      {
+          "text": "Delay Settings",
+          "support_text": "Click to open Delay settings.",
+          "type": "dialog",
+          "fill": true,
+          "background": false,
+          "menu": [
+              {
+                 "background": false,
+                 "text": "Delay for Auto Harvest",
+                 "icon": "Agriculture",
+                 "support_text": "Don't use low delay if you experience lag.",
+                 "type": "tooltip"
+              },
+              {
+                  "type": "slider",
+                  "text": "Harvest Delay :",
+                  "default": 180,
+                  "max": 500,
+                  "min": 100,
+                  "step": 100,
+                  "use_dot": true,
+                  "alias": "hsnht_delay"
+              },
+              {
+                  "type": "slider",
+                  "text": "Collect Delay :",
+                  "default": 10,
+                  "max": 50,
+                  "min": 10,
+                  "step": 10,
+                  "use_dot": true,
+                  "alias": "hsnht_delay_collect"
+              },
+              {
+                  "type": "slider",
+                  "text": "Join World Delay :",
+                  "default": 3000,
+                  "max": 10000,
+                  "min": 3000,
+                  "step": 100,
+                  "use_dot": true,
+                  "alias": "hsnht_delay_join"
+              }
+          ]
+      },
       {
           "type": "toggle",
           "text": "Auto Collect Harvest",
@@ -131,16 +177,6 @@ local Hsnht = [[
           "description": "Enable Webhook notifications",
           "default": true,
           "alias": "hsnht_webhook"
-      },
-      {
-          "type": "slider",
-          "text": "Harvest Delay :",
-          "default": 180,
-          "max": 500,
-          "min": 100,
-          "step": 100,
-          "use_dot": true,
-          "alias": "hsnht_delay"
       },
       {
           "type": "divider"
@@ -232,7 +268,9 @@ function getVar()
        worlds = getValue(2, "hsnht_worldList"),
        dx = tonumber(sx),
        dy = tonumber(sy),
-       delay = getValue(1, "hsnht_delay")
+       delay = getValue(1, "hsnht_delay"),
+       delay_collect = getValue(1, "hsnht_delay_collect"),
+       delay_join = getValue(1, "hsnht_delay_join")
    }
    return config
 end
@@ -259,10 +297,16 @@ wn(db):save()
 keyInput = wn(db):get("Key", "N/A")
 worldName = wn(db):get("List", "N/A")
 dropPosition = wn(db):get("dropPos", "N/A")
+delayC = wn(db):get("delayC", 50)
+delayH = wn(db):get("delayH", 180)
+delayJ = wn(db):get("delayJ", 3000)
 
 editValue("hsnht_key", keyInput)
 editValue("hsnht_worldList", worldName)
 editValue("hsnht_dropPos", dropPosition)
+editValue("hsnht_delay_collect", delayC)
+editValue("hsnht_delay", delayH)
+editValue("hsnht_delay_join", delayJ)
 
 function dialogBuilder(t, m, c)
     sendDialog({
@@ -281,12 +325,12 @@ function cekMember(playerID)
 end        
 
 if cekMember(userID) then
-   dialogBuilder("Auto Harvest by HsnGL", "Verified, Welcome ".. buyerList[userID].."\n\nStatus : Premium\n\nFeatures:\n - Auto Harvest Tree & Provider ✔\n - Multi worlds ✔\n - No Key required ✔\n - Auto collect and drop item ✔\n - Auto reconnect ✔\n - Webhook notification ✔", "OK")
+   dialogBuilder("Auto Harvest by HsnGL", "Verified, Welcome ".. buyerList[userID].."\n\nStatus : Premium\n\nFeatures:\n - Auto Harvest Tree & Provider ✔\n - Multi worlds ✔\n - No Key required ✔\n - Auto collect and drop item ✔\n - Auto reconnect ✔\n - Webhook notification ✔\n\nLast Update: 17/09/2026", "OK")
    premium = true
    notif("Auto Harvest: Premium added!")
    editValue("hsnht_key", "Test Version")
 else
-   dialogBuilder("Auto Harvest by HsnGL", "Welcome Free User\n\nStatus : Free\n\nFeatures:\n - Auto Auto Harvest Tree & Provider ✔\n - Auto collect and save drop item ✔\n - Webhook notification ✔\n - Multi worlds ❌\n - No Key required ❌\n - Auto reconnect ❌", "OK")
+   dialogBuilder("Auto Harvest by HsnGL", "Welcome Free User\n\nStatus : Free\n\nFeatures:\n - Auto Auto Harvest Tree & Provider ✔\n - Auto collect and save drop item ✔\n - Webhook notification ✔\n - Multi worlds ❌\n - No Key required ❌\n - Auto reconnect ❌\n\nLast Update: 17/09/2026", "OK")
    premium = false
    notif("Auto Harvest: Free added!")
 end 
@@ -638,7 +682,7 @@ function collectHT()
             end
             
             spr(11, obj.id, obj.posX, obj.posY)
-            Sleep(rd(10))
+            Sleep(rd(c.delay_collect))
          end
       
          ::continue::
@@ -779,6 +823,7 @@ end
 
 function reconnect()
    local timeout = 0
+   local c = getVar()
    
    if getLocal() then
       return true
@@ -823,6 +868,7 @@ function reconnect()
       return false
    end 
    
+   Sleep(rd(c.delay_join))
    y = 0
    return true
 end
@@ -846,6 +892,7 @@ function harvest()
    y = 0
    maxY = 60
    
+   local savedPos = getValue(2, "hsnht_dropPos")
    local hx, hy = getPos()
       
    if hx and hy then
@@ -900,6 +947,14 @@ function harvest()
          end
       
          local x = startX
+         
+         local matchTile = {}
+         
+         for xs = 0, 99 do
+            if getTile(xs, y).fg == id and getTile(xs, y).readyharvest then
+               matchTile[xs..":"..y] = true
+            end
+         end   
 
          while (step == 1 and x <= endX)
             or (step == -1 and x >= endX) do
@@ -931,9 +986,9 @@ function harvest()
                   return false
                end   
                
-               local tile = getTile(x1, y1)
+               local tileKey = x1..":"..y1
 
-               if tile.fg == id and tile.readyharvest then
+               if matchTile[tileKey] then
                   valid1 = true
                end
             end
@@ -944,9 +999,9 @@ function harvest()
                   return false
                end   
                
-               local tile = getTile(x2, y2)
+               local tileKey = x2..":"..y2
 
-               if tile.fg == id and tile.readyharvest then
+               if matchTile[tileKey] then
                   valid2 = true
                end
             end
@@ -957,9 +1012,9 @@ function harvest()
                   return false
                end   
                
-               local tile = getTile(x3, y3)
+               local tileKey = x3..":"..y3
 
-               if tile.fg == id and tile.readyharvest then
+               if matchTile[tileKey] then
                   valid3 = true
                end
             end
@@ -1046,10 +1101,11 @@ function harvest()
          Sleep(rd(3000))
          notif("Warp to next world...")
          warp(worlds[twIndex])
-         Sleep(rd(3000))
+         Sleep(rd(c.delay_join))
          webhook(1)
          Sleep(5000)
          y = 0
+         editValue("hsnht_dropPos", savedPos)
       end   
    end
 end            
@@ -1086,6 +1142,9 @@ addHook(function(type, name, value)
          wn(db):set("Key", getValue(2, "hsnht_key"))
          wn(db):set("List", getValue(2, "hsnht_worldList"))
          wn(db):set("dropPos", getValue(2, "hsnht_dropPos"))
+         wn(db):set("delayC", getValue(1, "hsnht_delay_collect"))
+         wn(db):set("delayH", getValue(1, "hsnht_delay"))
+         wn(db):set("delayJ", getValue(1, "hsnht_delay_join"))
          wn(db):save()
          
          runThread(function()
@@ -1136,6 +1195,7 @@ addHook(function(type, name, value)
    elseif name == "hsnht_webhook" then
 	  sendWebhook = value
    elseif name == "hsnht_refresh" then
+      dropPos = {}
       loadWorlds()   
    elseif name == "hsnht_getWorld" then
       editValue("hsnht_worldList", GetWorldName())
