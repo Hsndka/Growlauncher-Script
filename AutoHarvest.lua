@@ -329,14 +329,12 @@ if cekMember(userID) then
    dialogBuilder("Auto Harvest by HsnGL", "Verified, Welcome ".. buyerList[userID].."\n\nStatus : Premium\n\nFeatures:\n - Auto Harvest Tree & Provider ✔\n - Multi worlds ✔\n - No Key required ✔\n - Auto collect and drop item ✔\n - Auto reconnect ✔\n - Webhook notification ✔\n\nLast Update: 17/09/2026", "OK")
    premium = true
    notif("Auto Harvest: Premium added!")
-   editValue("hsnht_key", "Test Version")
+   editValue("hsnht_key", "Premium Version")
 else
    dialogBuilder("Auto Harvest by HsnGL", "Welcome Free User\n\nStatus : Free\n\nFeatures:\n - Auto Auto Harvest Tree & Provider ✔\n - Auto collect and save drop item ✔\n - Webhook notification ✔\n - Multi worlds ❌\n - No Key required ❌\n - Auto reconnect ❌\n\nLast Update: 17/09/2026", "OK")
    premium = false
    notif("Auto Harvest: Free added!")
 end 
-
-premium = true
 
 function stopScript(reason)
    running = false
