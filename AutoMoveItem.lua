@@ -630,7 +630,8 @@ function mainLoop()
    editToggle("Antipunch", true)
    editToggle("collectfilter_onlytake", true)
    editToggle("collectfilter_enable", true)
-   
+   editToggle("cheat_config_fastdrop_active", false)
+  
    saveCfg()
    loadTakeWorlds()
    local moveLimit = getValue(1, "hsnmove_limit")
