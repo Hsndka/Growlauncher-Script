@@ -1,5 +1,3 @@
-load(fetch("https://raw.githubusercontent.com/Hsndka/Growlauncher-Script/main/GeneralModule.lua"))()
-
 addCategory("HsnGL", "FileOpen")
 
 local Hsngaut = [[
@@ -300,6 +298,8 @@ end
 resetValue()
 
 function mainLoop()
+   editToggle("cheat_config_fastdrop_active", false)
+  
    while running do
       if popup and not empty then
          local count = 0
