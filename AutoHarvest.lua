@@ -870,6 +870,7 @@ function harvest()
    editToggle("ModFly", true)
    editToggle("collectfilter_onlytake", true)
    editToggle("collectfilter_enable", true)
+editToggle("cheat_config_fastdrop_active", false)
    
    if collect_ht then
 	  dropPos[getVar().dx .. ":" .. getVar().dy] = true
