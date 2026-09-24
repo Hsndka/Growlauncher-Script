@@ -1,6 +1,7 @@
 local buyerList = {
     ["636196321232945152"] = "Author",
 	["562894447315124227"] = "Admin",
+	["792935853357662239"] = "Dhans",
 	["749968613141774397"] = "Arss",
 	["764801007062089729"] = "Peruere",
 	["677096900985487371"] = "Lana",
@@ -870,7 +871,7 @@ function harvest()
    editToggle("ModFly", true)
    editToggle("collectfilter_onlytake", true)
    editToggle("collectfilter_enable", true)
-editToggle("cheat_config_fastdrop_active", false)
+   editToggle("cheat_config_fastdrop_active", false)
    
    if collect_ht then
 	  dropPos[getVar().dx .. ":" .. getVar().dy] = true
