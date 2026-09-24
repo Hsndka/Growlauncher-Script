@@ -236,7 +236,7 @@ local pendingDrop = {}
 local id = 0
 local twIndex = 1
 local y = 0
-local maxY = 60
+
 local gems = 112
 local fuel = 1746
    
@@ -249,13 +249,13 @@ local RAW_URL = "https://raw.githubusercontent.com/Hsndka/Growlauncher-Script/ma
 local config = {}
 local worlds = {}
 local dropPos = {}
-Sleep(3000)
 
 local RAW_WEBHOOK = "https://raw.githubusercontent.com/Hsndka/Growlauncher-Script/main/Webhook.lua"
 local Webhook = nil
 
 pcall(function()
     Webhook = load(fetch(RAW_WEBHOOK))()
+    Sleep(3000)
 end)
 
 local userID = getDiscordID()
@@ -332,12 +332,12 @@ function cekMember(playerID)
 end        
 
 if cekMember(userID) then
-   dialogBuilder("Auto Harvest by HsnGL", "Verified, Welcome ".. buyerList[userID].."\n\nStatus : Premium\n\nFeatures:\n - Auto Harvest Tree & Provider ✔\n - Multi worlds ✔\n - No Key required ✔\n - Auto collect and drop item ✔\n - Auto reconnect ✔\n - Webhook notification ✔\n\nLast Update: 17/09/2026", "OK")
+   dialogBuilder("Auto Harvest by HsnGL", "Verified, Welcome ".. buyerList[userID].."\n\nStatus : Premium\n\nFeatures:\n - Auto Harvest Tree & Provider ✔\n - Multi worlds ✔\n - No Key required ✔\n - Auto collect and drop item ✔\n - Auto reconnect ✔\n - Webhook notification ✔\n\nLast Update: 25/09/2026", "OK")
    premium = true
    notif("Auto Harvest: Premium added!")
    editValue("hsnht_key", "Premium Version")
 else
-   dialogBuilder("Auto Harvest by HsnGL", "Welcome Free User\n\nStatus : Free\n\nFeatures:\n - Auto Auto Harvest Tree & Provider ✔\n - Auto collect and save drop item ✔\n - Webhook notification ✔\n - Multi worlds ❌\n - No Key required ❌\n - Auto reconnect ❌\n\nLast Update: 17/09/2026", "OK")
+   dialogBuilder("Auto Harvest by HsnGL", "Welcome Free User\n\nStatus : Free\n\nFeatures:\n - Auto Auto Harvest Tree & Provider ✔\n - Auto collect and save drop item ✔\n - Webhook notification ✔\n - Multi worlds ❌\n - No Key required ❌\n - Auto reconnect ❌\n\nLast Update: 25/09/2026", "OK")
    premium = false
    notif("Auto Harvest: Free added!")
 end 
@@ -370,11 +370,6 @@ function rd(base)
 end
 
 function spr(t, v, x, y)
-   if not reconnect() then
-      stopScript("Failed to reconnect.")
-      return false
-   end   
-   
   SendPacketRaw(false, {
         type = t,
         value = v,
@@ -386,10 +381,6 @@ function spr(t, v, x, y)
 end
 
 function Punch(x, y)
-   if not getPos() or not running then
-      return false
-   end
-   
    spr(3, 18, x, y)
 end   
 
@@ -450,79 +441,30 @@ function warp(world)
       Sleep(3000)
       timeout = timeout + 1
       notif("Waiting to arrive at "..filter)
-   until GetWorldName() == filter or timeout >= 20 or dc or not running
-   
-   if timeout >= 20 then
-      return false
-   end
-   
+   until GetWorldName() == filter or GetWorldName() == "EXIT" or dc or not running
+   Sleep(3500) 
    y = 0
    return GetWorldName() == filter
 end
 
 function collision(x, y)
-   if not reconnect() then
-      stopScript("Failed to reconnect.")
-       return false
-   end 
-     
    return getTile(x, y).collidable
 end
 
 function fp(x, y)
    local range = 6
    
-   if not getPos() or not running then
+   if not reconnect() then
+      stopScript("Failed to reconnect.")
       return false
    end
-   
+      
    local px, py = getPos()   
       
    if growtopia.isOnPos(x, y) then
       return true
    end
    
-   while math.abs(y - py) > range do
-      py = py + (y - py > 0 and range or range*-1)
-      
-      if not running then
-         return false
-      end
-            
-      if not reconnect() then
-         stopScript("Failed to reconnect.")
-         return false
-      end   
-   
-      if not collision(px, py) then
-         FindPath(px, py)
-         Sleep(rd(200))
-      end
-   end
-  
-   while math.abs(x - px) > range do
-      px = px + (x - px > 0 and range or range*-1)
-      
-      if not running then
-         return false
-      end
-            
-      if not reconnect() then
-         stopScript("Failed to reconnect.")
-         return false
-      end   
-      
-      if not collision(px, py) then
-         FindPath(px, py)
-         Sleep(rd(200))
-      end
-   end
-   
-   if not reconnect() then
-      stopScript("Failed to reconnect.")
-      return false
-   end   
-      
    FindPath(x, y)
    Sleep(rd(100))
    return growtopia.isOnPos(x, y)
@@ -542,7 +484,12 @@ function drop(id)
       return true
    end
    
-   if not getPos() or not running then
+   if not getPos() then
+      return true
+   end
+   
+   if not running then
+      stopScript("") 
       return false
    end
    
@@ -555,10 +502,14 @@ function drop(id)
    
    isDrop = false
    
-   if not reconnect() then
-      stopScript("Failed to reconnect.")
+   if not getPos() then
+      return true
+   end
+   
+   if not running then
+      stopScript("") 
       return false
-   end   
+   end
    
    if timeout >= 100 then
       return false
@@ -584,10 +535,14 @@ function drop(id)
       return true
    end  
    
+   if not getPos() then
+      return true
+   end
+   
    if not running then
-      stopScript("")
+      stopScript("") 
       return false
-   end   
+   end
    
    growtopia.confirmDropItem(id, cek(id))
    timeout = 0
@@ -605,10 +560,14 @@ function drop(id)
       return false
    end   
             
-   if not reconnect() then
-      stopScript("Failed to reconnect.")
+   if not getPos() then
+      return true
+   end
+   
+   if not running then
+      stopScript("") 
       return false
-   end   
+   end
    
    if isBlocked then
       isBlocked = false
@@ -630,11 +589,15 @@ function drop(id)
       return true
    end
    
+   if not getPos() then
+      return true
+   end
+   
    if not running then
-      stopScript("")
+      stopScript("") 
       return false
    end
-
+   
    if collect_ht then
       dropPos[c.dx .. ":" .. c.dy] = true
       dropPos[(c.dx + 1) .. ":" .. c.dy] = true
@@ -664,23 +627,19 @@ function collectHT()
    
    runThread(function()
       for _, obj in pairs(GetObjectList()) do
-         if obj.itemid == gems and not takeGems then
-            goto continue
-         end 
-      
-         if obj.itemid == fuel then
-            goto continue
-         end 
-        
          local obx, oby = obj.posX//32, obj.posY//32
-      
-         local key = obx .. ":" .. oby
-      
-         if dropPos[key] then
-            goto continue
-         end
-      
+         
          if math.abs(obx - px) <= 5 and math.abs(oby - py) <= 2 then
+            if (obj.itemid == gems and not takeGems) or obj.itemid == fuel then
+               goto continue
+            end 
+      
+            local key = obx .. ":" .. oby
+      
+            if dropPos[key] then
+               goto continue
+            end
+      
             if cek(obj.itemid) >= 180 and obj.itemid ~= gems then
                dropList[obj.itemid] = true
                goto continue
@@ -696,11 +655,7 @@ function collectHT()
 
    for itemid in pairs(dropList) do
       collected = true
-         
-      if not getPos() or not running then
-         return false
-      end
-
+      
       if not fp(c.dx, c.dy) then
          return false
       end
@@ -730,9 +685,10 @@ function collect_fuel()
       return true
    end
    
-   if not getPos() or not running then
+   if not reconnect() then
+      stopScript("Failed to reconnect.")
       return false
-   end
+   end   
    
    for _, obj in pairs(getObjectList()) do
       if obj.itemid == fuel then
@@ -895,13 +851,17 @@ function harvest()
    end   
 
    y = 0
-   maxY = 60
+   local maxY = 60
    
    local savedPos = getValue(2, "hsnht_dropPos")
    local hx, hy = getPos()
       
    if hx and hy then
       id = getTile(hx, hy).fg
+      if not id or id == 0 then
+         stopScript("Cara Harvest:\n   Berdiri di pohon/provider yang mau harvest")
+         return false
+      end   
    end   
    
    loadWorlds()
@@ -927,6 +887,7 @@ function harvest()
       end
       
       while again and running do
+         local found = false
          again = false
          retry = retry + 1
          
@@ -934,11 +895,12 @@ function harvest()
             break
          end
          
-         local p = GetLocal()
-      
-         if not p then return false end
+         if not reconnect() then
+            stopScript("Failed to reconnect.")
+            return false
+         end   
    
-         local playerX = math.floor(p.posX / 32)
+         local _, playerX = getPos()
          local startX, endX, step
  
          if playerX > 50 then
@@ -955,23 +917,22 @@ function harvest()
          
          local matchTile = {}
          
+         ost("Scanning row ["..y.."/]")
+         
          for xs = 0, 99 do
-            if getTile(xs, y).fg == id and getTile(xs, y).readyharvest then
+            if getTile(xs, y) and getTile(xs, y).fg == id and getTile(xs, y).readyharvest then
                matchTile[xs..":"..y] = true
+               found = true
             end
+         end   
+         
+         if not found then
+            Sleep(10)
+            break
          end   
 
          while (step == 1 and x <= endX)
             or (step == -1 and x >= endX) do
-            
-            if not running then
-               return false
-            end
-            
-            if not reconnect() then
-               stopScript("Failed to reconnect.")
-               return false
-            end   
 
             local x1 = x
             local x2 = x + step
@@ -986,11 +947,6 @@ function harvest()
             local valid3 = false
 
             if x1 >= 0 and x1 <= 99 then
-               if not reconnect() then
-                  stopScript("Failed to reconnect.")
-                  return false
-               end   
-               
                local tileKey = x1..":"..y1
 
                if matchTile[tileKey] then
@@ -999,11 +955,6 @@ function harvest()
             end
             
             if x2 >= 0 and x2 <= 99 then
-               if not reconnect() then
-                  stopScript("Failed to reconnect.")
-                  return false
-               end   
-               
                local tileKey = x2..":"..y2
 
                if matchTile[tileKey] then
@@ -1012,11 +963,6 @@ function harvest()
             end
 
             if x3 >= 0 and x3 <= 99 then
-               if not reconnect() then
-                  stopScript("Failed to reconnect.")
-                  return false
-               end   
-               
                local tileKey = x3..":"..y3
 
                if matchTile[tileKey] then
@@ -1025,7 +971,8 @@ function harvest()
             end
 
             local fpX, fpY
-                
+            local acted = false
+            
             if valid1 then
                fpX, fpY = x1, y1
             elseif valid2 then
@@ -1035,7 +982,6 @@ function harvest()
             end
 
             if fpX then
-
                if not collect_fuel() then
                   stopScript("Failed to collect Fuel Pack.")
                   return false
@@ -1045,7 +991,6 @@ function harvest()
 
                if fp(fpX, fpY) then
                   if valid1 then
-                     
                      if not reconnect() then
                         stopScript("Failed to reconnect.")
                         return false
@@ -1053,6 +998,7 @@ function harvest()
                      
                      Punch(x1, y1)
                      Sleep(rd(c.delay))
+                     acted = true
                   end
 
                   if valid2 then
@@ -1063,6 +1009,7 @@ function harvest()
                      
                      Punch(x2, y2)
                      Sleep(rd(c.delay))
+                     acted = true
                   end
 
                   if valid3 then
@@ -1073,6 +1020,7 @@ function harvest()
                      
                      Punch(x3, y3)
                      Sleep(rd(c.delay))
+                     acted = true
                   end
                   
                   again = true
@@ -1080,6 +1028,10 @@ function harvest()
             end
 
             x = x + step * 3
+            
+            if not acted then
+               Sleep(10)
+            end
          end
       end
 
@@ -1089,7 +1041,6 @@ function harvest()
          twIndex = twIndex + 1
          
          if twIndex > #worlds then
-            logs("Finished! No more <`2"..getItemInfoByID(id).name.."``> to harvest.")
             notif("Finished! No more <"..getItemInfoByID(id).name.."> to harvest.")
             editToggle("ModFly", false)
             webhook(3)
@@ -1158,7 +1109,6 @@ addHook(function(type, name, value)
             if not ok then
                webhook(4, err)
                Sleep(5000)
-               logs(err)
                stopScript(err)
             end
          end)   
