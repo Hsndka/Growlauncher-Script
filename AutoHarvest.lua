@@ -537,6 +537,7 @@ function drop(id)
       end   
       
       editValue("hsnht_dropPos", new_dx..", "..c.dy)
+	  Sleep(500)	
       return true
    end  
    
@@ -591,7 +592,8 @@ function drop(id)
       end   
       
       editValue("hsnht_dropPos", new_dx..", "..c.dy)
-      return true
+      Sleep(500)
+	  return true
    end
    
    if not getPos() then
@@ -904,7 +906,7 @@ function harvest()
             return false
          end   
    
-         local _, playerX = getPos()
+         local playerX, playerY = getPos()
          local startX, endX, step
  
          if playerX > 50 then
@@ -992,6 +994,9 @@ function harvest()
                end
                
                collectHT()
+			   if not running then
+				  return false
+			   end		
 
                if fp(fpX, fpY) then
                   if valid1 then
