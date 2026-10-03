@@ -643,32 +643,34 @@ function collectHT()
    local dropList = {}
    local px, py = getPos()
    local c = getVar()
-   
-   for _, obj in pairs(GetObjectList()) do
-      local obx, oby = obj.posX//32, obj.posY//32
+
+   runThread(function()
+      for _, obj in pairs(GetObjectList()) do
+         local obx, oby = obj.posX//32, obj.posY//32
          
-      if math.abs(obx - px) <= 5 and math.abs(oby - py) <= 2 then
-         if (obj.itemid == gems and not takeGems) or obj.itemid == fuel then
-            goto continue
-         end 
+         if math.abs(obx - px) <= 5 and math.abs(oby - py) <= 2 then
+            if (obj.itemid == gems and not takeGems) or obj.itemid == fuel then
+               goto continue
+            end 
       
-         local key = obx .. ":" .. oby
+            local key = obx .. ":" .. oby
       
-         if dropPos[key] then
-            goto continue
-         end
+            if dropPos[key] then
+               goto continue
+            end
       
-         if cek(obj.itemid) >= 180 and obj.itemid ~= gems then
-            dropList[obj.itemid] = true
-            goto continue
-         end
+            if cek(obj.itemid) >= 180 and obj.itemid ~= gems then
+               dropList[obj.itemid] = true
+               goto continue
+            end
             
-         spr(11, obj.id, obj.posX, obj.posY)
-         Sleep(rd(c.delay_collect))
-      end
+            spr(11, obj.id, obj.posX, obj.posY)
+            Sleep(rd(c.delay_collect))
+         end
       
-      ::continue::
-   end
+         ::continue::
+      end
+   end)
 
    for itemid in pairs(dropList) do
 	  local c = getVar()
