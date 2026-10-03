@@ -126,7 +126,7 @@ local Hsnht = [[
                   "text": "Collect Delay :",
                   "default": 10,
                   "max": 50,
-                  "min": 10,
+                  "min": 1,
                   "step": 10,
                   "use_dot": true,
                   "alias": "hsnht_delay_collect"
@@ -644,7 +644,7 @@ function collectHT()
    local px, py = getPos()
    local c = getVar()
 
-   runThread(function()
+   --runThread(function()
       for _, obj in pairs(GetObjectList()) do
          local obx, oby = obj.posX//32, obj.posY//32
          
@@ -670,7 +670,7 @@ function collectHT()
       
          ::continue::
       end
-   end)
+   --end)
 
    for itemid in pairs(dropList) do
 	  local c = getVar()
