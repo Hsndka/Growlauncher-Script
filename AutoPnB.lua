@@ -807,8 +807,8 @@ local function Collect()
             if math.abs(obx - tx) <= 1 and oby == ty then
                if Cek(obj.itemid) >= 180 and obj.itemid ~= config.block then
                   dropList[obj.itemid] = true
-               elseif getTile(obx, oby) and getTile(obx, oby).collidable then
-                  goto continue
+               --[[elseif getTile(obx, oby) and getTile(obx, oby).collidable then
+                  goto continue]]
                else
                   spr(11, obj.id, obj.posX, obj.posY)
                end   
