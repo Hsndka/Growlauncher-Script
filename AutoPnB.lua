@@ -792,7 +792,7 @@ local function Collect()
    
    if Disconnected() or not running_ then return true end
    
-   runThread(function()
+   --runThread(function()
       for _, obj in pairs(GetObjectList() or {}) do
          local obx, oby = obj.posX//32, obj.posY//32
          
@@ -817,7 +817,7 @@ local function Collect()
          end
          ::continues::
       end
-   end)
+   --end)
    
    if not dropList or #dropList < 0 then return true end 
      
