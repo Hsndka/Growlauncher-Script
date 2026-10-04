@@ -1041,11 +1041,11 @@ local function PnB(x, y, world)
       
       if Cek(config.block) <= 0 and config_put then return "Take" end
          
-      if ((type_ == 18 and tile and tile.bg ~= 0) or (type_ == 17 and tile and tile.fg ~= 0))
+      if ((type_ == 18 and tile and tile.bg ~= 0) or (type_ ~= 18 and tile and tile.fg ~= 0))
          and config_break then
          spr(3, 18, tx, ty)
          Sleep(rd(config.break_delay))
-      elseif ((type_ == 18 and tile and tile.bg == 0) or (type_ == 17 and tile and tile.fg == 0))
+      elseif ((type_ == 18 and tile and tile.bg == 0) or (type_ ~= 18 and tile and tile.fg == 0))
          and config_put then
          spr(3, config.block, tx, ty)
          Sleep(rd(config.put_delay))
