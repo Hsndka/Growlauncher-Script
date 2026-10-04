@@ -694,8 +694,11 @@ local function Warp(world)
       stopScript("WARP ERROR")
       return
    end
-      
-   if GetWorldName() == filter then return true end
+
+   if not w(world):find("^[^|]+") and GetWorldName() == filter then 
+      return true 
+   end
+    
    Notify("Warp to "..filter)
    growtopia.warpTo(world)
    
