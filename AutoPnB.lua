@@ -1040,7 +1040,8 @@ local function PnB(x, y, world)
       end
       
       if Cek(config.block) <= 0 and config_put then return "Take" end
-         
+      if not Collect() then return false end
+        
       if ((type_ == 18 and tile and tile.bg ~= 0) or (type_ ~= 18 and tile and tile.fg ~= 0))
          and config_break then
          spr(3, 18, tx, ty)
@@ -1056,7 +1057,7 @@ local function PnB(x, y, world)
          Sleep(rd(100))
       end 
    end     
-   return "Ok"
+   return true
 end
 
 local function getStatus()
@@ -1356,10 +1357,6 @@ local function mainLoop()
          
          putCount_ = 0
          Sleep(1000)
-      elseif result == "Ok" then
-         if not Collect() then
-            return false
-         end
       end
    end
    return false
