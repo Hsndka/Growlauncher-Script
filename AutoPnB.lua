@@ -108,36 +108,6 @@ local Hsnpnb = [[
         ]
       },
       {
-        "text": "Delay Setting",
-        "support_text": "Click to open settings.",
-        "type": "dialog",
-        "menu": [
-            {
-                "type": "tooltip",
-                "text": "Delay for Put and Break",
-                "support_text": "Don't use low delay if you're lagging",
-                "background": false,
-                "icon": "HourglassTop"
-            },
-            {
-                "type": "slider",
-                "text": "Delay for Break",
-                "max": 720,
-                "min": 180,
-                "default": 180,
-                "alias": "hsnpnb_delayBreak"
-            },
-            {
-                "type": "slider",
-                "text": "Delay for Put",
-                "max": 500,
-                "min": 100,
-                "default": 100,
-                "alias": "hsnpnb_delayPut"
-            }
-        ]
-      },
-      {
           "text": "World Setting",
           "support_text": "Click to open settings.",
           "type": "dialog",
@@ -201,6 +171,78 @@ local Hsnpnb = [[
           ]
       },
       {
+        "text": "Drop Setting",
+        "support_text": "Click to open settings.",
+        "type": "dialog",
+        "menu": [
+            {
+                "type": "tooltip",
+                "text": "Drop Setting",
+                "support_text": "Don't use low delay if you're lagging",
+                "background": false,
+                "icon": "SettingsSuggest"
+            },
+            {
+                "alias": "hsnpnb_dropWorld",
+                "text": "Save World Name",
+                "icon": "TravelExplore",
+                "placeholder": "WORLD|ID or WORLD",
+                "default": "N/A",
+                "type": "input_string",
+                "label": "World Name"
+            },
+            {
+                "type": "button",
+                "alias": "hsnpnb_getDropWorld",
+               "text": "Get Current World"
+            },
+            {
+                "alias": "hsnpnb_dropPos",
+                "text": "Drop Position",
+                "icon": "FmdGood",
+                "placeholder": "",
+                "default": "N/A",
+                "type": "input_string",
+                "label": "Position for drop"
+            },
+            {
+                "type": "button",
+                "alias": "hsnpnb_getDropPos",
+                "text": "Get Current Position"
+            }
+         ]
+      },
+      {
+        "text": "Delay Setting",
+        "support_text": "Click to open settings.",
+        "type": "dialog",
+        "menu": [
+            {
+                "type": "tooltip",
+                "text": "Delay for Put and Break",
+                "support_text": "Don't use low delay if you're lagging",
+                "background": false,
+                "icon": "HourglassTop"
+            },
+            {
+                "type": "slider",
+                "text": "Delay for Break",
+                "max": 720,
+                "min": 180,
+                "default": 180,
+                "alias": "hsnpnb_delayBreak"
+            },
+            {
+                "type": "slider",
+                "text": "Delay for Put",
+                "max": 500,
+                "min": 100,
+                "default": 100,
+                "alias": "hsnpnb_delayPut"
+            }
+        ]
+      },
+      {
           "type": "divider"
       },
       {
@@ -226,22 +268,8 @@ local Hsnpnb = [[
                   "text": "Collect Gems",
                   "description": "Auto collect gems",
                   "default": false
-              },
-              {
-                  "alias": "hsnpnb_dropPos1",
-                  "text": "Drop Position",
-                  "icon": "FmdGood",
-                  "placeholder": "",
-                  "default": "N/A",
-                  "type": "input_string",
-                  "label": "Position for drop"
-              },
-              {
-                  "type": "button",
-                  "alias": "hsnpnb_getDropPos",
-                  "text": "Get Current Position"
               }
-          ]   
+          ] 
       },
       {
           "type": "toggle",
@@ -287,6 +315,13 @@ local Hsnpnb = [[
                           "label": "Auto retrieve after <n> block placed"
                       },
                       {
+                          "background": true,
+                          "text": "GAUT POSITION",
+                          "icon": "Lightbulb",
+                          "support_text": "Cara mengambil posisi gaut adalah player harus berdiri diatas GAUT lalu tekan GET CURRENT POSITION.",
+                          "type": "tooltip"
+                      },
+                      {
                           "alias": "hsnpnb_UTPos",
                           "text": "UT Position",
                           "icon": "FmdGood",
@@ -312,20 +347,6 @@ local Hsnpnb = [[
                       {
                           "type": "button",
                           "alias": "hsnpnb_getGBPos",
-                          "text": "Get Current Position"
-                      },
-                      {
-                          "alias": "hsnpnb_dropPos",
-                          "text": "Drop Position",
-                          "icon": "FmdGood",
-                          "placeholder": "",
-                          "default": "N/A",
-                          "type": "input_string",
-                          "label": "Drop coordinate"
-                      },
-                      {
-                          "type": "button",
-                          "alias": "hsnpnb_getDropPos",
                           "text": "Get Current Position"
                       }
                   ]
@@ -518,6 +539,7 @@ local function getVar()
        put_delay = getValue(1, "hsnpnb_delayPut"),
        treshold = getValue(1, "hsnpnb_retrieveTreshold"),
        
+       dropWorld = getValue(2, "hsnpnb_dropWorld"),
        takeWorlds = getValue(2, "hsnpnb_takeWorlds"),
        world = getValue(2, "hsnpnb_world")
    }
@@ -529,6 +551,7 @@ local function saveConfigs()
    
    wn(db):set("px", config.px); wn(db):set("py", config.py)
    wn(db):set("dx", config.dx); wn(db):set("dy", config.dy)
+   wn(db):set("dropWorld", config.dropWorld)
    wn(db):set("gbx", config.gbx); wn(db):set("gby", config.gby)
    wn(db):set("utx", config.utx); wn(db):set("uty", config.uty)
    wn(db):set("world", config.world); wn(db):set("takeWorlds", config.takeWorlds)
@@ -542,6 +565,7 @@ local function loadConfigs()
    local dx, dy = wn(db):get("dx", -1), wn(db):get("dy", -1)
    local gbx, gby = wn(db):get("gbx", -1), wn(db):get("gby", -1)
    local utx, uty = wn(db):get("utx", -1), wn(db):get("uty", -1)
+   local dropWorld = wn(db):get("dropWorld", "N/A")
    local world, takeWorlds = wn(db):get("world", "N/A"), wn(db):get("takeWorlds", "N/A")
    local block, treshold = wn(db):get("block", 5666), wn(db):get("treshold", 200)
    local bdelay, pdelay = wn(db):get("bdelay", 180), wn(db):get("pdelay", 100)
@@ -552,6 +576,7 @@ local function loadConfigs()
    editValue("hsnpnb_GBPos", gbx..", "..gby)
    editValue("hsnpnb_UTPos", utx..", "..uty)
    editValue("hsnpnb_world", world)
+   editValue("hsnpnb_dropWorld", dropWorld)
    editValue("hsnpnb_takeWorlds", takeWorlds)
    editValue("hsnpnb_block", getItemInfoByID(block).name)
    editValue("hsnpnb_retrieveTreshold", treshold)
@@ -747,7 +772,6 @@ local function Drop(id)
       end
       
       editValue("hsnpnb_dropPos", new_dx..", "..config.dy)
-      editValue("hsnpnb_dropPos1", new_dx..", "..config.dy)
       return true
    end
    
@@ -778,7 +802,6 @@ local function Drop(id)
          return
       end
       editValue("hsnpnb_dropPos", new_dx..", "..config.dy)
-      editValue("hsnpnb_dropPos1", new_dx..", "..config.dy)
       return true
    end
    
@@ -794,39 +817,38 @@ local function Collect()
    
    if Disconnected() or not running_ then return true end
    
-   --runThread(function()
-      for _, obj in pairs(GetObjectList() or {}) do
-         local obx, oby = obj.posX//32, obj.posY//32
+   for _, obj in pairs(GetObjectList() or {}) do
+      local obx, oby = obj.posX//32, obj.posY//32
          
-         if obj.itemid == gems and not config_collectGems then
-            goto continues
-         end
-            
+      if obj.itemid == gems and not config_collectGems then
+      else
          for _, tile in ipairs0(Tileselect) do
             local px, py = getPos()
             local tx, ty = px + tile.x, py + tile.y
          
             if math.abs(obx - tx) <= 1 and oby == ty then
-               if Cek(obj.itemid) >= 180 and obj.itemid ~= config.block then
+               if Cek(obj.itemid) >= 190 and obj.itemid ~= config.block then
                   dropList[obj.itemid] = true
-               --[[elseif getTile(obx, oby) and getTile(obx, oby).collidable then
-                  goto continue]]
+                  break
                else
                   spr(11, obj.id, obj.posX, obj.posY)
                end   
             end
-            ::continue::
          end
-         ::continues::
       end
-   --end)
+   end
    
    if not dropList or #dropList < 0 then return true end 
-     
+         
    for itemid in pairs(dropList) do
       local config = getVar()
    
       if Disconnected() or not running_ then return true end
+      if not Warp(config.dropWorld) then
+         stopScript("Gagal Warp ke save world")
+         return false
+      end
+   
       if not Fp(config.dx, config.dy) then
          stopScript("Gagal menuju posisi drop.")
          return false
@@ -968,8 +990,7 @@ end
 local function Retrieve()
    local config = getVar()
    
-   if Disconnected() then return false end
-   
+   if Disconnected() then return true end
    if not config_retrieveGAUT or not running_ then return true end   
    
    repeat
@@ -978,8 +999,13 @@ local function Retrieve()
       if not retrieveGAUT(1) then break end  
       
       Popup2_ = false
-      if Cek(gautID) > 0 then
+      if Cek(gautID) >= 200 then
          if Disconnected() or not running_ then return true end
+         if not Warp(config.dropWorld) then
+            stopScript("Gagal Warp ke save world")
+            return false
+         end
+         
          if not Fp(config.dx, config.dy) then
             stopScript("Gagal Findpath ke area drop")
             return false
@@ -987,6 +1013,12 @@ local function Retrieve()
             
          if not Drop(gautID) then
             stopScript("Gagal drop "..getItemInfoByID(gautID).name)
+            return false
+         end
+         
+         if Disconnected() or not running_ then return true end
+         if not Warp(config.world) then
+            stopScript("Gagal Warp ke break world.")
             return false
          end
       end 
@@ -1001,14 +1033,14 @@ local function Retrieve()
       
       Popup2_ = false
       if Cek(gautID) > 0 then
+         if lastStock or Cek(gautID) < 200 then
+            return true
+         end
+         
          if Disconnected() or not running_ then return true end
          if not Fp(config.dx, config.dy) then
             stopScript("Gagal Findpath ke area drop")
             return false
-         end
-         
-         if lastStock or Cek(gautID) < 200 then
-            return true
          end
          
          if not Drop(gautID) then
@@ -1036,14 +1068,13 @@ local function PnB(x, y, world)
       local filter = worldFilter(world)
       
       if Disconnected() then return "Disconnected" end
+      if Cek(config.block) <= 0 and config_put then return "Take" end
+      if not Collect() then return false end
       
       if not growtopia.isOnPos(x, y) or GetWorldName() ~= filter then
          return "Invalid Position"
       end
       
-      if Cek(config.block) <= 0 and config_put then return "Take" end
-      if not Collect() then return false end
-        
       if ((type_ == 18 and tile and tile.bg ~= 0) or (type_ ~= 18 and tile and tile.fg ~= 0))
          and config_break then
          spr(3, 18, tx, ty)
@@ -1218,6 +1249,11 @@ local function mainLoop()
    
    if getValue(2, "hsnpnb_world") == "" or getValue(2, "hsnpnb_world") == "N/A" then
       stopScript("World break tidak boleh kosong!")
+      return
+   end
+   
+   if getValue(2, "hsnpnb_dropWorld") == "" or getValue(2, "hsnpnb_world") == "N/A" then
+      stopScript("World save tidak boleh kosong!")
       return
    end
    
@@ -1515,7 +1551,9 @@ addHook(function(type, name, value)
    elseif name == "hsnpnb_getWorld" then
       editValue("hsnpnb_world", GetWorldName())
    elseif name == "hsnpnb_getTakeWorld" then
-      editValue("hsnpnb_takeWorlds", GetWorldName())  
+      editValue("hsnpnb_takeWorlds", GetWorldName())
+   elseif name == "hsnpnb_getDropWorld" then
+      editValue("hsnpnb_dropWorld", GetWorldName())     
    elseif name == "hsnpnb_refresh" then
       loadWorlds()
    elseif name == "hsnpnb_getPnbPos" then
@@ -1541,7 +1579,6 @@ addHook(function(type, name, value)
       
       if px and py then
          editValue("hsnpnb_dropPos", px..", "..py)
-         editValue("hsnpnb_dropPos1", px..", "..py)   
       end   
    elseif name == "hsnpnb_put" then
       config_put = value
