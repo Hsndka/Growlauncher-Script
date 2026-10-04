@@ -1,5 +1,7 @@
 local buyerList = {
-    ["636196321232945152"] = "Author"
+    ["636196321232945152"] = "Author",
+    ["669433328650420234"] = "Alzails",
+    ["280589937496162304"] = "Rey"
 }
 
 local running_, DC_ = false
