@@ -7,7 +7,7 @@ local buyerList = {
     ["280589937496162304"] = "Rey"
 }
 
-local running_, DC_ = false
+local running_, DC_, isUTDrop_ = false, false, false
 local Premium, lastStock = false, false
 local isDrop_, isFull_, isBlocked_ = false, false, false
 local Popup0_, Popup1_, Popup2_ = false ,false, false
@@ -20,8 +20,8 @@ local config_useConsumable = false
 local config_collectDrops, config_collectGems = false, false
 local config_autoBan = false
 local config_autoConsume = false
-local config_consumeSongpyeon, Songpyeon_cd, Songpyeon_next = false, false, 0
-local config_consumeArroz, Arroz_cd, Arroz_next = false, false, 0
+local config_consumeSongpyeon, Songpyeon_cd = false, false
+local config_consumeArroz, Arroz_cd = false, false
 local config_autoCure, curePopup1_, curePopup2_ = false, false, false
 
 local putCount_ = 0
@@ -180,8 +180,8 @@ local Hsnpnb = [[
         "menu": [
             {
                 "type": "tooltip",
-                "text": "Drop Setting",
-                "support_text": "Don't use low delay if you're lagging",
+                "text": "General Drop Setting",
+                "support_text": "",
                 "background": false,
                 "icon": "SettingsSuggest"
             },
@@ -211,6 +211,27 @@ local Hsnpnb = [[
             {
                 "type": "button",
                 "alias": "hsnpnb_getDropPos",
+                "text": "Get Current Position"
+            },
+            {
+                "type": "tooltip",
+                "text": "UT Drop Setting",
+                "support_text": "",
+                "background": false,
+                "icon": "SettingsSuggest"
+            },
+            {
+                "alias": "hsnpnb_UTDropPos",
+                "text": "Drop Position",
+                "icon": "FmdGood",
+                "placeholder": "",
+                "default": "N/A",
+                "type": "input_string",
+                "label": "Position for drop"
+            },
+            {
+                "type": "button",
+                "alias": "hsnpnb_getUTDropPos",
                 "text": "Get Current Position"
             }
          ]
@@ -526,6 +547,8 @@ local function getVar()
    local bx, by = w(pnbPos):match("(%d+)%s*,%s*(%d+)")
    local dropPos = getValue(2, "hsnpnb_dropPos")
    local sx, sy = w(dropPos):match("(%d+)%s*,%s*(%d+)")
+   local utDropPos = getValue(2, "hsnpnb_UTDropPos")
+   local udx, udy = w(utDropPos):match("(%d+)%s*,%s*(%d+)")
    local gbPos = getValue(2, "hsnpnb_GBPos")
    local gx, gy = w(gbPos):match("(%d+)%s*,%s*(%d+)")
    local utPos = getValue(2, "hsnpnb_UTPos")
@@ -536,6 +559,7 @@ local function getVar()
        dx = tonumber(sx), dy = tonumber(sy),
        gbx = tonumber(gx), gby = tonumber(gy),
        utx = tonumber(ux), uty = tonumber(uy),
+       utdx = tonumber(udx), utdy = tonumber(udy),
        
        block = getValue(1, "hsnpnb_block"),
        break_delay = getValue(1, "hsnpnb_delayBreak"),
@@ -557,6 +581,7 @@ local function saveConfigs()
    wn(db):set("dropWorld", config.dropWorld)
    wn(db):set("gbx", config.gbx); wn(db):set("gby", config.gby)
    wn(db):set("utx", config.utx); wn(db):set("uty", config.uty)
+   wn(db):set("utdx", config.utdx); wn(db):set("utdy", config.utdy)
    wn(db):set("world", config.world); wn(db):set("takeWorlds", config.takeWorlds)
    wn(db):set("block", config.block); wn(db):set("treshold", config.treshold)
    wn(db):set("pdelay", config.put_delay); wn(db):set("bdelay", config.break_delay)
@@ -568,6 +593,7 @@ local function loadConfigs()
    local dx, dy = wn(db):get("dx", -1), wn(db):get("dy", -1)
    local gbx, gby = wn(db):get("gbx", -1), wn(db):get("gby", -1)
    local utx, uty = wn(db):get("utx", -1), wn(db):get("uty", -1)
+   local utdx, utdy = wn(db):get("utdx", -1), wn(db):get("utdy", -1)
    local dropWorld = wn(db):get("dropWorld", "N/A")
    local world, takeWorlds = wn(db):get("world", "N/A"), wn(db):get("takeWorlds", "N/A")
    local block, treshold = wn(db):get("block", 5666), wn(db):get("treshold", 200)
@@ -578,6 +604,7 @@ local function loadConfigs()
    editValue("hsnpnb_dropPos1", dx..", "..dy)
    editValue("hsnpnb_GBPos", gbx..", "..gby)
    editValue("hsnpnb_UTPos", utx..", "..uty)
+   editValue("hsnpnb_UTDropPos", utdx..", "..utdy)
    editValue("hsnpnb_world", world)
    editValue("hsnpnb_dropWorld", dropWorld)
    editValue("hsnpnb_takeWorlds", takeWorlds)
@@ -593,6 +620,7 @@ local function stopScript(reason)
    isDrop_, isFull_, isBlocked_ = false, false, false
    Popup0_, Popup1_, Popup2_ = false ,false, false
    getStatus_, gettingStatus_, isCured_ =  false, false, false
+   isUTDrop_ = false
    
    gautX, gautY, gautInv = 0, 0, 0
    gautID, gautType = 0, ""
@@ -689,7 +717,7 @@ local function worldFilter(rawWorld)
    return Filter
 end
    
-local function Warp(world)
+local function Warp(world, hasID)
    local filter = worldFilter(world)
    local timeout = 0
    
@@ -698,7 +726,7 @@ local function Warp(world)
       return
    end
 
-   if GetWorldName() == filter then 
+   if (not hasID or hasID == nil or hasID == "") and GetWorldName() == filter then 
       return true 
    end
     
@@ -770,14 +798,26 @@ local function Drop(id)
    
    if isFull_ then
       isFull_ = false
-      local new_dx = config.dx - 1
       
-      if new_dx < 0 then
-         stopScript("Posisi drop invalid.")
-         return
+      if isUTDrop_ then
+         local new_utdx = config.utdx - 1
+      
+         if new_utdx < 0 then
+            stopScript("Posisi drop invalid.")
+            return
+         end
+         isUTDrop_ = false
+         editValue("hsnpnb_UTDropPos", new_utdx..", "..config.utdy)
+      else
+         local new_dx = config.dx - 1
+      
+         if new_dx < 0 then
+            stopScript("Posisi drop invalid.")
+            return
+         end
+      
+         editValue("hsnpnb_dropPos", new_dx..", "..config.dy)
       end
-      
-      editValue("hsnpnb_dropPos", new_dx..", "..config.dy)
       return true
    end
    
@@ -801,13 +841,26 @@ local function Drop(id)
    
    if isFull_ then
       isFull_ = false
-      local new_dx = config.dx - 1
       
-      if new_dx < 0 then
-         stopScript("Posisi drop invalid.")
-         return
+      if isUTDrop_ then
+         local new_utdx = config.utdx - 1
+      
+         if new_utdx < 0 then
+            stopScript("Posisi drop invalid.")
+            return
+         end
+         isUTDrop_ = false
+         editValue("hsnpnb_UTDropPos", new_utdx..", "..config.utdy)
+      else
+         local new_dx = config.dx - 1
+      
+         if new_dx < 0 then
+            stopScript("Posisi drop invalid.")
+            return
+         end
+      
+         editValue("hsnpnb_dropPos", new_dx..", "..config.dy)
       end
-      editValue("hsnpnb_dropPos", new_dx..", "..config.dy)
       return true
    end
    
@@ -1044,15 +1097,17 @@ local function Retrieve()
          end
          
          if Disconnected() or not running_ then return true end
-         if not Fp(config.dx, config.dy) then
-            stopScript("Gagal Findpath ke area drop")
+         if not Fp(config.utdx, config.utdy) then
+            stopScript("Gagal Findpath ke area drop UT.")
             return false
          end
          
+         isUTDrop_ = true
          if not Drop(gautID) then
             stopScript("Gagal drop "..getItemInfoByID(gautID).name)
             return false
          end
+         isUTDrop_ = false
       end 
    until gautInv <= 200 or not running_ or Disconnected()
    
@@ -1162,10 +1217,8 @@ local function autoConsume()
          Notify("Consumed Arroz Con Pollo, "..Cek(Arroz).." left")
       end   
    end
-   
-   if not food then
-      return false
-   end
+      
+   if not food then return false end
    return true
 end
 
@@ -1177,7 +1230,7 @@ local function autoCure()
    if Disconnected() or not running_ then return true end
    
    if isTornPunching or isGemCut then
-      if Cek(242) < 5 then
+      if Cek(242) < 2 then
          stopScript("WL tidak cukup untuk Auto Cure\nKartu BPJS tidak tersedia.")
          return false
       end
@@ -1268,6 +1321,11 @@ local function mainLoop()
       return
    end
    
+   if not getValue(2, "hsnpnb_UTDropPos"):match("^%s*%d+%s*,%s*%d+%s*$") and config_retrieveGAUT then
+      stopScript("Posisi Drop UT tidak boleh kosong!")
+      return
+   end
+   
    if not getValue(2, "hsnpnb_UTPos"):match("^%s*%d+%s*,%s*%d+%s*$") and config_retrieveGAUT then
       stopScript("Posisi UT tidak boleh kosong!")
       return
@@ -1330,10 +1388,21 @@ local function mainLoop()
          end  
          
          if not Fp(config.px, config.py) then
-            stopScript("Gagal kembali ke posisi break.")
-            return false
+            if not w(config.world):find("|", 1, true) then
+               stopScript("Gagal kembali ke posisi break.")
+               return false
+            else
+               if not Warp(config.world, true) then
+                  stopScript("Gagal kembali ke posisi break.")
+                  return false
+               end  
+               
+               if not Fp(config.px, config.py) then
+                  stopScript("Gagal kembali ke posisi break.")
+                  return false
+               end  
+            end
          end
-         
          Sleep(1000)
       elseif result == "Take" then
          local take = false
@@ -1448,22 +1517,10 @@ addHook(function(var)
      isBlocked_ = true
    elseif var.v1 == "OnRequestWorldSelectMenu" and running_ then
       DC_ = true
-   elseif var.v1 == "OnConsoleMessage" and w(var.v2):find("`$Lucky!`` mod removed")
-      and os.clock() - Songpyeon_next >= 2 then
+   elseif var.v1 == "OnConsoleMessage" and w(var.v2):find("`$Lucky!`` mod removed") then
       Songpyeon_cd = false
-      Songpyeon_next = os.clock()
-      
-      runThread(function()
-         autoConsume()
-      end)
-   elseif var.v1 == "OnConsoleMessage" and w(var.v2):find("`$Food: Breaking Gems`` mod removed")
-      and os.clock() - Arroz_next >= 2 then
+   elseif var.v1 == "OnConsoleMessage" and w(var.v2):find("`$Food: Breaking Gems`` mod removed") then
       Arroz_cd = false
-      Arroz_next = os.clock()
-      
-      runThread(function()
-         autoConsume()
-      end)   
    elseif var.v1 == "OnDialogRequest" and w(var.v2):find("add_popup_name|WrenchMenu|") and gettingStatus_ then
       getStatus_ = true
       gettingStatus_ = false
@@ -1587,6 +1644,12 @@ addHook(function(type, name, value)
       if px and py then
          editValue("hsnpnb_dropPos", px..", "..py)
       end   
+   elseif name == "hsnpnb_getUTDropPos" then
+      local px, py = getPos()
+      
+      if px and py then
+         editValue("hsnpnb_UTDropPos", px..", "..py)
+      end      
    elseif name == "hsnpnb_put" then
       config_put = value
    elseif name == "hsnpnb_break" then   
