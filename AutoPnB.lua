@@ -1,5 +1,6 @@
 local buyerList = {
     ["636196321232945152"] = "Author",
+    ["1123160341958905867"] = "Wann21",
     ["499488277401829377"] = "Koendji",
     ["1092331607257530388"] = "Tyowpwp",
     ["669433328650420234"] = "Alzails",
@@ -1286,6 +1287,7 @@ local function mainLoop()
    editToggle("ModFly", true)
    editToggle("collectfilter_onlytake", true)
    editToggle("collectfilter_enable", true)
+   editToggle("cheat_config_fastdrop_active", false)
    
    if not getStatus() then
       stopScript("Gagal mendapatkan status player.")
