@@ -698,7 +698,7 @@ local function Warp(world)
       return
    end
 
-   if not w(world):find("|") and GetWorldName() == filter then 
+   if GetWorldName() == filter then 
       return true 
    end
     
