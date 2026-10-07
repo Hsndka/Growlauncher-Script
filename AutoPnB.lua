@@ -530,7 +530,7 @@ local function sendWebhook(method)
       
       local block = getValue(1, "hsnpnb_block")
       local count = putCount_
-      local target = "🪟 "..getItemInfoByID(block).name.." (Counted: "..count..")"
+      local target = "🧱 "..getItemInfoByID(block).name.."\n(Counted: "..count.." **not accurate**)"
       local elapsedTime = math.floor(os.clock() - startTime)
       local h, m, s = getTimes(elapsedTime)
       local Runtime = h.."h "..m.."m "..s.."s"
@@ -673,14 +673,6 @@ local function stopScript(reason)
    local h, m, s = getTimes(elapsedTime)
    
    log("`c[PnB]`w Runtime: "..h.."h "..m.."m "..s.."s")
-   
-   if not webhookSent and m >= 10 then
-      local ok, err = pcall(sendWebhook, 0)
-   
-      if not ok then
-         log(err)
-      end   
-   end
    
    running_, DC_, lastStock = false, false, false
    isDrop_, isFull_, isBlocked_ = false, false, false
