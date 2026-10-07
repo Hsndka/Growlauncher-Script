@@ -1543,7 +1543,7 @@ local function mainLoop()
                if not takeBlock(takeWorlds[twIndex]) then
                   twIndex = twIndex + 1
                
-                  if twIndex >= #takeWorlds then
+                  if twIndex > #takeWorlds then
                      if config_retrieveGAUT then
                         lastStock = true
                         goto continue
