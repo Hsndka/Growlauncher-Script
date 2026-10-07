@@ -1,5 +1,6 @@
 local buyerList = {
     ["636196321232945152"] = "Author",
+    ["1390605855426084917"] = "Grizzy",
     ["661504235271225364"] = "DNF",
     ["867382227871596615"] = "Peanuts",
     ["1181845446201704521"] = "Lynxornd",
@@ -523,18 +524,21 @@ end)
 sendNotification("Put and Break by HsnGL added!")
 
 local function sendWebhook(method)
+   if webhookSent then return end
+   
+   local count = putCount_
+   local elapsedTime = math.floor(os.clock() - startTime)
+   local h, m, s = getTimes(elapsedTime)
+   local Runtime = h.."h "..m.."m "..s.."s"
    webhookSent = true
+   
    runThread(function()
       if not Webhook then
          return false
       end
       
       local block = getValue(1, "hsnpnb_block")
-      local count = putCount_
       local target = "🧱 "..getItemInfoByID(block).name.."\n(Counted: "..count.." **not accurate**)"
-      local elapsedTime = math.floor(os.clock() - startTime)
-      local h, m, s = getTimes(elapsedTime)
-      local Runtime = h.."h "..m.."m "..s.."s"
       local status = ""
       
       if Premium then
@@ -655,7 +659,6 @@ local function loadConfigs()
    
    editValue("hsnpnb_pnbPos", px..", "..py)
    editValue("hsnpnb_dropPos", dx..", "..dy)
-   editValue("hsnpnb_dropPos1", dx..", "..dy)
    editValue("hsnpnb_GBPos", gbx..", "..gby)
    editValue("hsnpnb_UTPos", utx..", "..uty)
    editValue("hsnpnb_UTDropPos", utdx..", "..utdy)
@@ -679,11 +682,12 @@ local function stopScript(reason)
    isDrop_, isFull_, isBlocked_ = false, false, false
    Popup0_, Popup1_, Popup2_ = false ,false, false
    getStatus_, gettingStatus_, isCured_ =  false, false, false
+   gettingGAUT_, curePopup1_, curePopup2_ = false, false, false
    isUTDrop_ = false
    
    gautX, gautY, gautInv = 0, 0, 0
    gautID, gautType = 0, ""
-   twIndex, putCount_ = 1, 0
+   twIndex, putCount_ = 1, 1
    
    editToggle("ModFly", false)
    editToggle("collectfilter_enable", false)
@@ -970,9 +974,12 @@ local function takeBlock(world)
    
    local config = getVar()
    local found = true
+   local round = 0
    
-   while found do
+   while found and running_ do
+      local before = Cek(config.block)
       found = false
+      round = round + 1
       
       for _, obj in pairs(GetObjectList() or {}) do
          if obj.itemid == config.block then
@@ -1000,7 +1007,12 @@ local function takeBlock(world)
          ::continue::
       end
       
-      if found then Sleep(100) end
+      if found then 
+         Sleep(100)
+         if round >= 30 and (Cek(config.block) < before or Cek(config.block) == 200) then
+            break
+         end    
+      end
    end
    return Cek(config.block) > 0
 end
@@ -1021,7 +1033,10 @@ local function Collect()
       if obj.itemid == gems and not config_collectGems then
       else
          for _, tile in ipairs0(Tileselect) do
-            local px, py = getPos()
+            local px, py = getPos(); if not px then
+               return true
+            end
+               
             local tx, ty = px + tile.x, py + tile.y
          
             if math.abs(obx - tx) <= 1 and oby == ty then
@@ -1244,6 +1259,10 @@ local function PnB(x, y, world)
       if Cek(config.block) <= 0 and config_put then return "Take" end
       if not Collect() then return false end
       
+      if not growtopia.isOnPos(x, y) or GetWorldName() ~= filter then
+         return "Invalid Position"
+      end
+      
       if ((type_ == 18 and tile and tile.bg ~= 0) or (type_ ~= 18 and tile and tile.fg ~= 0))
          and config_break then
          punch(tx, ty)
@@ -1294,6 +1313,7 @@ end
 
 local function autoConsume()
    local food = true
+   local sleepAdjust = 100
    local Songpyeon = 1056
    local Arroz = 4604
    
@@ -1305,12 +1325,13 @@ local function autoConsume()
    if config_consumeSongpyeon and not Songpyeon_cd then
       if Disconnected() or not running_ then return true end
       if Cek(Songpyeon) <= 0 then
-         food = false
+         dialogBuilder("[PnB] Auto Consume", "Songpyeon tidak cukup.", "OK")
          editValue("hsnpnb_consumeSongpyeon", false)
       else   
          spr(3, Songpyeon, px, py)
          Songpyeon_cd = true
          Sleep(1000)
+         sleepAdjust = 3000
          Notify("Consumed Songpyeon, "..Cek(Songpyeon).." left")
       end  
    end
@@ -1318,18 +1339,18 @@ local function autoConsume()
    if config_consumeArroz and not Arroz_cd then
       if Disconnected() or not running_ then return true end
       if Cek(Arroz) <= 0 then
-         food = false
+         dialogBuilder("[PnB] Auto Consume", "Arroz con Pollo tidak cukup.", "OK")
          editValue("hsnpnb_consumeArroz", false)
       else   
          spr(3, Arroz, px, py)
          Arroz_cd = true
          Sleep(1000)
+         sleepAdjust = 3000
          Notify("Consumed Arroz Con Pollo, "..Cek(Arroz).." left")
       end   
    end
-      
-   if not food then return false end
-   return true
+   
+   Sleep(sleepAdjust)
 end
 
 local function autoCure()
@@ -1351,7 +1372,7 @@ local function autoCure()
       
       if isGemCut then cx = 58 end
       if Disconnected() or not running_ then return true end
-      if not Fp(cx, cy) then return false end
+      if not Fp(cx, cy) then return true end
       
       timeout = 0
       spr(3, 32, cx, cy)
@@ -1423,7 +1444,8 @@ local function mainLoop()
       return
    end
    
-   if getValue(2, "hsnpnb_dropWorld") == "" or getValue(2, "hsnpnb_world") == "N/A" then
+   if getValue(2, "hsnpnb_dropWorld") == "" or getValue(2, "hsnpnb_dropWorld") == "N/A" 
+   and (config_retrieveGAUT or config_collectDrops) then
       stopScript("World save tidak boleh kosong!")
       return
    end
@@ -1482,10 +1504,7 @@ local function mainLoop()
          return false
       end
          
-      if not autoConsume() then
-         Sleep(3000)
-         dialogBuilder("[PnB] Auto Consume", "Food buff tidak cukup.", "OK")
-      end
+      autoConsume()
      
       local result = PnB(config.px, config.py, config.world)
       
@@ -1519,9 +1538,9 @@ local function mainLoop()
          Sleep(1000)
       elseif result == "Take" then
          local take = false
-         
+   
          if lastStock then
-            if not Retrieve() then
+            if not config_retrieveGAUT or not Retrieve() then
                sendWebhook(1)
                stopScript("Tidak ada lagi <"..getItemInfoByID(config.block).name.."> to break.")
                return false
@@ -1668,15 +1687,17 @@ addHook(function(var)
       local netid = tonumber(w(v2):match("netID|(%d+)"))
       
       if netid then
-         sendPacket(2, "action|wrench\n|netid|"..netid)
-         Sleep(90)
-         sendPacket(2, 
-             "action|dialog_return\n"..
-             "dialog_name|popup\n"..
-             "netID|"..netid.."|\n"..
-             "netID|"..netid.."|\n"..
-             "buttonClicked|worldban"
-         )
+         runThread(function()
+            sendPacket(2, "action|wrench\n|netid|"..netid)
+            Sleep(90)
+            sendPacket(2, 
+                "action|dialog_return\n"..
+                "dialog_name|popup\n"..
+                "netID|"..netid.."|\n"..
+                "netID|"..netid.."|\n"..
+                "buttonClicked|worldban"
+            )
+         end)   
       end
    elseif var.v1 == "OnConsoleMessage" and w(var.v2):find("You've clearly done far too much punching") then
       isTornPunching = true
