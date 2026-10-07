@@ -907,7 +907,7 @@ local function Collect()
                   dropList[obj.itemid] = true
                   break
                else
-                  sendPacketRaw({type = 11, value = obj.id, x = obj.posX, y = obj.posY)
+                  sendPacketRaw({type = 11, value = obj.id, x = obj.posX, y = obj.posY})
                end   
             end
          end
@@ -968,7 +968,7 @@ local function takeBlock(world)
          if math.abs(obx - px) <= 5 and math.abs(oby - py) <= 5 then
             local timeout = 0
             
-            sendPacketRaw({type = 11, value = obj.id, x = obj.posX, y = obj.posY)
+            sendPacketRaw({type = 11, value = obj.id, x = obj.posX, y = obj.posY})
             repeat
                Sleep(rd(10))
                timeout = timeout + 10
