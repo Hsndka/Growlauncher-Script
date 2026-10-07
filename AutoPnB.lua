@@ -27,7 +27,7 @@ local config_consumeSongpyeon, Songpyeon_cd = false, false
 local config_consumeArroz, Arroz_cd = false, false
 local config_autoCure, curePopup1_, curePopup2_ = false, false, false
 
-local putCount_ = 0
+local putCount_ = 1
 local gautX, gautY, gautInv = 0, 0, 0
 local gautID, gautType = 0, ""
 local twIndex = 1
@@ -742,6 +742,30 @@ local function Disconnected()
    end   
 end
 
+local function punch(x, y)
+   if Disconnected() then return true end
+   local me = getLocal()
+   SendPacketRaw(false, {
+        type = 3,
+        value = 18,
+        state = me.isLeft and 16 or 0,
+        px = x,
+        py = y,
+        x = GetLocal().posX,
+        y = GetLocal().posY
+   })
+end
+
+local function collectItem(t, v, obx, oby)
+   if Disconnected() then return true end
+   SendPacketRaw(false, {
+        type = t,
+        value = v,
+        x = obx,
+        y = oby
+   })
+end
+
 local function spr(t, v, x, y)
   if Disconnected() then return true end
   SendPacketRaw(false, {
@@ -764,7 +788,7 @@ local function Fp(x, y)
    
    repeat
       findPath(x, y)
-      Sleep(1000)
+      Sleep(500)
       attempt = attempt + 1
    until growtopia.isOnPos(x, y) or attempt > 3
    
@@ -942,7 +966,7 @@ local function collectFloating()
          local px, py = getPos()
          
          if math.abs(obx - px) <= 6 and math.abs(oby - py) <= 6 then
-            spr(11, obj.id, obj.posX, obj.posY)
+            collectItem(11, obj.id, obj.posX, obj.posY)
          end 
       end
    end
@@ -953,19 +977,11 @@ local function takeBlock(world)
    
    local config = getVar()
    local found = true
-   local attempt = 0
    
-   while found and attempt <= 20 do
+   while found do
       found = false
       
-      local objs = getObjectList(); if not objs then
-         break
-      end   
-      
-      found = true
-      attempt = attempt + 1
-      
-      for _, obj in pairs(objs) do
+      for _, obj in pairs(GetObjectList() or {}) do
          if obj.itemid == config.block then
             if Disconnected() then 
                if not Reconnect(world) then
@@ -975,19 +991,18 @@ local function takeBlock(world)
          
             local obx, oby = obj.posX//32, obj.posY//32
             
-            if getTile(obx, oby) and getTile(obx, oby).collidable then
-               goto continue
-            end
-            
             if not Fp(obx, oby) then
                goto continue
             end
             
+            found = true
             collectFloating()
             
             if Cek(config.block) >= 190 then
                return true
             end  
+            
+            break
          end
          ::continue::
       end
@@ -1021,7 +1036,7 @@ local function Collect()
                   dropList[obj.itemid] = true
                   break
                else
-                  spr(11, obj.id, obj.posX, obj.posY)
+                  collectItem(11, obj.id, obj.posX, obj.posY)
                end   
             end
          end
@@ -1141,12 +1156,8 @@ local function retrieveGAUT(types)
       
    if timeout >= 200 then return false end
    if not running_ or Disconnected() then return true end   
-   if Popup2_ then
-      Popup2_ = false
-      return false
-   end
-      
-   return Cek(gautID) > before
+   
+   return Cek(gautID) > before or Cek(gautID) >= 200
 end
       
 local function Retrieve()
@@ -1242,12 +1253,14 @@ local function PnB(x, y, world)
       
       if ((type_ == 18 and tile and tile.bg ~= 0) or (type_ ~= 18 and tile and tile.fg ~= 0))
          and config_break then
-         spr(3, 18, tx, ty)
+         punch(tx, ty)
          Sleep(rd(config.break_delay))
       elseif ((type_ == 18 and tile and tile.bg == 0) or (type_ ~= 18 and tile and tile.fg == 0))
          and config_put then
+         
          spr(3, config.block, tx, ty)
          Sleep(rd(config.put_delay))
+         
          putCount_ = putCount_ + 1
          
          if putCount_ % config.treshold == 0 and config_retrieveGAUT then return "Retrieve" end  
