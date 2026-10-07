@@ -681,9 +681,11 @@ end
 
 local function spr(t, v, x, y)
   if Disconnected() then return true end
+  local me = getLocal()
   SendPacketRaw(false, {
         type = t,
         value = v,
+        state = me.isLeft and 16 or 32,
         px = x,
         py = y,
         x = GetLocal().posX,
