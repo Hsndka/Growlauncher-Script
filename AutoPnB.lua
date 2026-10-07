@@ -679,13 +679,25 @@ local function Disconnected()
    end   
 end
 
-local function spr(t, v, x, y)
+local function punch(x, y)
   if Disconnected() then return true end
   local me = getLocal()
   SendPacketRaw(false, {
+        type = 3,
+        value = 18,
+        state = me.isLeft and 16 or 0,
+        px = x,
+        py = y,
+        x = GetLocal().posX,
+        y = GetLocal().posY
+  })
+end
+
+local function spr(t, v, x, y)
+  if Disconnected() then return true end
+  SendPacketRaw(false, {
         type = t,
         value = v,
-        state = me.isLeft and 16 or 32,
         px = x,
         py = y,
         x = GetLocal().posX,
@@ -895,7 +907,7 @@ local function Collect()
                   dropList[obj.itemid] = true
                   break
                else
-                  spr(11, obj.id, obj.posX, obj.posY)
+                  sendPacketRaw({type = 11, value = obj.id, x = obj.posX, y = obj.posY)
                end   
             end
          end
@@ -956,7 +968,7 @@ local function takeBlock(world)
          if math.abs(obx - px) <= 5 and math.abs(oby - py) <= 5 then
             local timeout = 0
             
-            spr(11, obj.id, obj.posX, obj.posY)
+            sendPacketRaw({type = 11, value = obj.id, x = obj.posX, y = obj.posY)
             repeat
                Sleep(rd(10))
                timeout = timeout + 10
@@ -1143,7 +1155,7 @@ local function PnB(x, y, world)
       
       if ((type_ == 18 and tile and tile.bg ~= 0) or (type_ ~= 18 and tile and tile.fg ~= 0))
          and config_break then
-         spr(3, 18, tx, ty)
+         punch(tx, ty)
          Sleep(rd(config.break_delay))
       elseif ((type_ == 18 and tile and tile.bg == 0) or (type_ ~= 18 and tile and tile.fg == 0))
          and config_put then
