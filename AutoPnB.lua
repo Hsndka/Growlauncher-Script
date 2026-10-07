@@ -1516,22 +1516,22 @@ local function mainLoop()
          end 
       elseif result == "Invalid Position" then
          if not Warp(config.world) then
-            stopScript("Gagal kembali ke posisi break.")
+            stopScript("Gagal kembali ke posisi break.\nL1519")
             return false
          end  
          
          if not Fp(config.px, config.py) then
             if not w(config.world):find("|", 1, true) then
-               stopScript("Gagal kembali ke posisi break.")
+               stopScript("Gagal kembali ke posisi break.\nL1525")
                return false
             else
                if not Warp(config.world, true) then
-                  stopScript("Gagal kembali ke posisi break.")
+                  stopScript("Gagal kembali ke posisi break.\nL1529")
                   return false
                end  
                
                if not Fp(config.px, config.py) then
-                  stopScript("Gagal kembali ke posisi break.")
+                  stopScript("Gagal kembali ke posisi break.\nL1534")
                   return false
                end  
             end
@@ -1557,7 +1557,7 @@ local function mainLoop()
          
             while not take do
                if not Warp(takeWorlds[twIndex]) then
-                  stopScript("Gagal kembali ke posisi break.")
+                  stopScript("Gagal kembali ke posisi break.\nL1560")
                   return false
                end  
          
@@ -1581,12 +1581,12 @@ local function mainLoop()
             end 
          
             if not Warp(config.world) then
-               stopScript("Gagal kembali ke posisi break.")
+               stopScript("Gagal kembali ke posisi break.\nL1584")
                return false
             end  
          
             if not Fp(config.px, config.py) then
-               stopScript("Gagal kembali ke posisi break.")
+               stopScript("Gagal kembali ke posisi break.\nL1589")
                return false
             end
             
@@ -1600,7 +1600,7 @@ local function mainLoop()
          end 
          
          if not Fp(config.px, config.py) then
-            stopScript("Gagal kembali ke posisi break.")
+            stopScript("Gagal kembali ke posisi break.\nL1603")
             return false
          end
          
