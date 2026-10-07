@@ -38,6 +38,7 @@ local configs = {}
 local Tileselect = {}
 local takeWorlds = {}
 
+local startTime = os.clock()
 local userID = tostring(getDiscordID())
 
 local Hsnpnb = [[
@@ -471,7 +472,6 @@ local Hsnpnb = [[
 
 addCategory("HsnGL", "FileOpen")
 addIntoModule(Hsnpnb, "HsnGL")    
-sendNotification("Put and Break by HsnGL added!")
 
 local function w(text) -- Untuk mencegah warna pada tulisan menghilang karena bug executor
    if type(text) == "string" then
@@ -502,6 +502,55 @@ end
 
 local function Notify(text) growtopia.notify("`c[HsnGL] `w"..text) end
 local function dialogBuilder(t, m, c) sendDialog({title = t, confirm = c, message = m}) end
+local function getTimes(rawNumber)
+   local h = math.floor(rawNumber / 3600)
+   local sisa = rawNumber % 3600
+   local m = math.floor(sisa / 60)
+   local s = math.floor(sisa % 60)
+   
+   return h, m, s
+end
+
+local RAW_WEBHOOK = "https://raw.githubusercontent.com/Hsndka/Growlauncher-Script/main/Webhook.lua"
+local Webhook, webhookSent = nil, false
+
+sendNotification("Loading script...")
+pcall(function()
+    Webhook = load(fetch(RAW_WEBHOOK))()
+    Sleep(3000)
+end)
+sendNotification("Put and Break by HsnGL added!")
+
+local function sendWebhook(method)
+   webhookSent = true
+   runThread(function()
+      if not Webhook then
+         return false
+      end
+      
+      local block = getValue(1, "hsnpnb_block")
+      local count = putCount_
+      local target = "🪟 "..getItemInfoByID(block).name.." (Counted: "..count..")"
+      local elapsedTime = math.floor(os.clock() - startTime)
+      local h, m, s = getTimes(elapsedTime)
+      local Runtime = h.."h "..m.."m "..s.."s"
+      local status = ""
+      
+      if Premium then
+         status = "👑"
+      else
+         status = "👤"   
+      end
+      
+      Notify("Sending Webhook, please wait...")
+      
+      if method == 0 then -- Stopped
+         Webhook(">>> **Auto PnB Webhook**\nUser :\n"..status.." <@"..userID..">\nStatus :\n<:offline:1545964640008405133> STOPPED/ERROR\nTarget :\n"..target.."\nRuntime :\n🕓 "..Runtime.."\n\n```js\n"..os.date("%d/%m/%y %H:%M").."```")
+      else -- Finished
+         Webhook(">>> **Auto PnB Webhook**\nUser :\n"..status.." <@"..userID..">\nStatus :\n<:tested:1526677186843644035> FINISHED\nTarget :\n"..target.."\nRuntime :\n🕓 "..Runtime.."\n\n```js\n"..os.date("%d/%m/%y %H:%M").."```")
+      end
+   end)   
+end
 
 local function cekBuyer(playerID)
   if buyerList[playerID] then
@@ -511,28 +560,29 @@ local function cekBuyer(playerID)
   end
 end        
 
-if cekBuyer(userID) or os.date("%A") == "Friday" or 1 + 1 == 2 then
+if cekBuyer(userID) or os.date("%A") == "Friday" then
    local name = "Tester"
    
    if cekBuyer(userID) then
       name = buyerList[userID]
-      editValue("hsnpnb_keyPass", "Test Version")
+      editValue("hsnpnb_keyPass", "Premium Version")
    end
       
    dialogBuilder("Auto PnB by HsnGL", "Verified, Welcome "..
    name.."\n\n==========================\n"..
    "Status : Premium\n\nNow you can access Premium\nfeatures "..
    "marked with 👑 icon.\n==========================\n\n"..
-   "Last Update: 03/10/2026", "OK")
+   "Last Update: 07/10/2026", "OK")
    
    Premium = true
 else
    dialogBuilder("Auto PnB by HsnGL", "Welcome Free User"..
    "\n\n==========================\nStatus : Free\n\n"..
-   "Now you can access basic features."..
+   "Test Version ended!\n"..
+   "Now you can only access basic features."..
    "\nThere is always free [Premium] on Friday."..
    "\n==========================\n\n"..
-   "Last Update: 03/10/2026", "OK")
+   "Last Update: 07/10/2026", "OK")
    
    Premium = false
 end 
@@ -619,6 +669,19 @@ end
 loadConfigs()
 
 local function stopScript(reason)
+   local elapsedTime = math.floor(os.clock() - startTime)
+   local h, m, s = getTimes(elapsedTime)
+   
+   log("`c[PnB]`w Runtime: "..h.."h "..m.."m "..s.."s")
+   
+   if not webhookSent and m >= 10 then
+      local ok, err = pcall(sendWebhook, 0)
+   
+      if not ok then
+         log(err)
+      end   
+   end
+   
    running_, DC_, lastStock = false, false, false
    isDrop_, isFull_, isBlocked_ = false, false, false
    Popup0_, Popup1_, Popup2_ = false ,false, false
@@ -677,20 +740,6 @@ local function Disconnected()
       Notify("Disconnected")
       return true
    end   
-end
-
-local function punch(x, y)
-  if Disconnected() then return true end
-  local me = getLocal()
-  SendPacketRaw(false, {
-        type = 3,
-        value = 18,
-        state = me.isLeft and 16 or 0,
-        px = x,
-        py = y,
-        x = GetLocal().posX,
-        y = GetLocal().posY
-  })
 end
 
 local function spr(t, v, x, y)
@@ -884,6 +933,71 @@ local function Drop(id)
    return Cek(id) <= 0
 end
 
+local function collectFloating()
+   local config = getVar()
+   
+   for _, obj in pairs(getObjectList() or {}) do
+      if obj.itemid == config.block then
+         local obx, oby = obj.posX//32, obj.posY//32
+         local px, py = getPos()
+         
+         if math.abs(obx - px) <= 6 and math.abs(oby - py) <= 6 then
+            spr(11, obj.id, obj.posX, obj.posY)
+         end 
+      end
+   end
+end
+           
+local function takeBlock(world)
+   if Disconnected() then return false end
+   
+   local config = getVar()
+   local found = true
+   local attempt = 0
+   
+   while found and attempt <= 20 do
+      found = false
+      
+      local objs = getObjectList(); if not objs then
+         break
+      end   
+      
+      found = true
+      attempt = attempt + 1
+      
+      for _, obj in pairs(objs) do
+         if obj.itemid == config.block then
+            if Disconnected() then 
+               if not Reconnect(world) then
+                  return false
+               end
+            end
+         
+            local obx, oby = obj.posX//32, obj.posY//32
+            
+            if getTile(obx, oby) and getTile(obx, oby).collidable then
+               goto continue
+            end
+            
+            if not Fp(obx, oby) then
+               goto continue
+            end
+            
+            collectFloating()
+            
+            if Cek(config.block) >= 190 then
+               return true
+            end  
+         end
+         ::continue::
+      end
+      
+      if found then Sleep(100) end
+   end
+   return Cek(config.block) > 0
+end
+      
+      
 local function Collect()
    if not config_collectDrops then return true end
       
@@ -907,7 +1021,7 @@ local function Collect()
                   dropList[obj.itemid] = true
                   break
                else
-                  sendPacketRaw({type = 11, value = obj.id, x = obj.posX, y = obj.posY})
+                  spr(11, obj.id, obj.posX, obj.posY)
                end   
             end
          end
@@ -939,58 +1053,20 @@ local function Collect()
    return true
 end
 
-local function takeBlock(world)
-   local config = getVar()
-   local startCount = Cek(config.block)
-   
-   for _, obj in pairs(GetObjectList() or {}) do
-      if obj.itemid == config.block then
-         if Disconnected() then 
-            if not Reconnect(world) then
-               return false
-            end
-         end
-         
-         local obx, oby = obj.posX//32, obj.posY//32
-         local before = Cek(obj.itemid)
-         
-         if before >= 200 then break end 
-         if getTile(obx, oby) and getTile(obx, oby).collidable then
-            goto continue
-         end
-         
-         if not Fp(obx, oby) then
-            goto continue
-         end
-         
-         local px, py = getPos()
-         
-         if math.abs(obx - px) <= 5 and math.abs(oby - py) <= 5 then
-            local timeout = 0
-            
-            sendPacketRaw({type = 11, value = obj.id, x = obj.posX, y = obj.posY})
-            repeat
-               Sleep(rd(10))
-               timeout = timeout + 10
-            until Cek(obj.itemid) > before or timeout >= 2000 or not running_ or Disconnected()
-         end  
-      end
-      ::continue::
-   end
-   return Cek(config.block) > startCount or Cek(config.block) == 200
-end
-
 local function retrieveGAUT(types)
    local config = getVar()
    local timeout = 0
    local mx, my
+   local blockID
    Popup0_, Popup1_, Popup2_ = false ,false, false
    gettingGAUT_ = true
    
    if types == 0 then
       mx, my = config.utx, config.uty + 1
+      blockID = 6948
    else
       mx, my = config.gbx, config.gby + 1
+      blockID = 6946
    end
        
    if Disconnected() then
@@ -1005,7 +1081,13 @@ local function retrieveGAUT(types)
       return false
    end
    
-   spr(3, 32, mx, my)
+   if getTile(mx, my) and getTile(mx, my).fg == blockID then
+      spr(3, 32, mx, my)
+   else
+      stopScript(getItemInfoByID(blockID).name.." tidak ditemukan.") 
+      return false
+   end
+       
    repeat
       Sleep(100)
       timeout = timeout + 1
@@ -1059,8 +1141,12 @@ local function retrieveGAUT(types)
       
    if timeout >= 200 then return false end
    if not running_ or Disconnected() then return true end   
-   
-   return Cek(gautID) > before or Popup2_
+   if Popup2_ then
+      Popup2_ = false
+      return false
+   end
+      
+   return Cek(gautID) > before
 end
       
 local function Retrieve()
@@ -1146,16 +1232,17 @@ local function PnB(x, y, world)
       local filter = worldFilter(world)
       
       if Disconnected() then return "Disconnected" end
-      if Cek(config.block) <= 0 and config_put then return "Take" end
-      if not Collect() then return false end
       
       if not growtopia.isOnPos(x, y) or GetWorldName() ~= filter then
          return "Invalid Position"
       end
       
+      if Cek(config.block) <= 0 and config_put then return "Take" end
+      if not Collect() then return false end
+      
       if ((type_ == 18 and tile and tile.bg ~= 0) or (type_ ~= 18 and tile and tile.fg ~= 0))
          and config_break then
-         punch(tx, ty)
+         spr(3, 18, tx, ty)
          Sleep(rd(config.break_delay))
       elseif ((type_ == 18 and tile and tile.bg == 0) or (type_ ~= 18 and tile and tile.fg == 0))
          and config_put then
@@ -1163,7 +1250,7 @@ local function PnB(x, y, world)
          Sleep(rd(config.put_delay))
          putCount_ = putCount_ + 1
          
-         if putCount_ >= config.treshold and config_retrieveGAUT then return "Retrieve" end  
+         if putCount_ % config.treshold == 0 and config_retrieveGAUT then return "Retrieve" end  
       else
          Sleep(rd(100))
       end 
@@ -1308,6 +1395,8 @@ local function autoCure()
 end
 
 local function mainLoop()
+   webhookSent = false
+   
    if getValue(2, "hsnpnb_keyPass") ~= keyPass and not Premium then
       stopScript("Key Password salah")
       return
@@ -1358,6 +1447,7 @@ local function mainLoop()
       return
    end
    
+   startTime = os.clock()
    loadWorlds()
    editToggle("ModFly", true)
    editToggle("collectfilter_onlytake", true)
@@ -1426,6 +1516,7 @@ local function mainLoop()
          
          if lastStock then
             if not Retrieve() then
+               sendWebhook(1)
                stopScript("Tidak ada lagi <"..getItemInfoByID(config.block).name.."> to break.")
                return false
             end
@@ -1447,11 +1538,12 @@ local function mainLoop()
                if not takeBlock(takeWorlds[twIndex]) then
                   twIndex = twIndex + 1
                
-                  if twIndex > #takeWorlds then
+                  if twIndex >= #takeWorlds then
                      if config_retrieveGAUT then
                         lastStock = true
                         goto continue
                      else
+                        sendWebhook(1)
                         stopScript("Tidak ada lagi <"..getItemInfoByID(config.block).name.."> to break.")
                         return false
                      end      
@@ -1486,7 +1578,6 @@ local function mainLoop()
             return false
          end
          
-         putCount_ = 0
          Sleep(1000)
       end
    end
