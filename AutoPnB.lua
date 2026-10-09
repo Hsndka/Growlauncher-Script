@@ -1656,9 +1656,9 @@ addHook(function(var)
      isBlocked_ = true
    elseif var.v1 == "OnRequestWorldSelectMenu" and running_ then
       DC_ = true
-   elseif var.v1 == "OnConsoleMessage" and w(var.v2):find("`$Lucky!`` mod removed") then
+   elseif var.v1 == "OnConsoleMessage" and w(var.v2):find("`%$Lucky!`` mod removed") then
       Songpyeon_cd = false
-   elseif var.v1 == "OnConsoleMessage" and w(var.v2):find("`$Food: Breaking Gems`` mod removed") then
+   elseif var.v1 == "OnConsoleMessage" and w(var.v2):find("`%$Food: Breaking Gems`` mod removed") then
       Arroz_cd = false
    elseif var.v1 == "OnDialogRequest" and w(var.v2):find("add_popup_name|WrenchMenu|") and gettingStatus_ then
       getStatus_ = true
