@@ -42,6 +42,7 @@ local config_autoBan = false
 local config_autoConsume = false
 local config_consumeSongpyeon, Songpyeon_cd = false, false
 local config_consumeArroz, Arroz_cd = false, false
+local config_consumeBrainworms, Brainworms_cd = false, false
 local config_autoCure, curePopup1_, curePopup2_ = false, false, false
 
 local putCount_ = 1
@@ -55,7 +56,7 @@ local configs = {}
 local Tileselect = {}
 local takeWorlds = {}
 
-local startTime = os.clock()
+local startTime = os.time()
 local userID = tostring(getDiscordID())
 
 local Hsnpnb = [[
@@ -433,6 +434,13 @@ local Hsnpnb = [[
                           "alias": "hsnpnb_consumeArroz"
                       },
                       {
+                          "type": "toggle",
+                          "text": "Vile Vial - Brainworms",
+                          "default": false,
+                          "description": "Automatically consumes Vile Vial - Brainworms if it's in inventory.",
+                          "alias": "hsnpnb_consumeBrainworms"
+                      },
+                      {
                           "background": false,
                           "text": "Request consumable?",
                           "icon": "TipsAndUpdates",
@@ -538,11 +546,11 @@ pcall(function()
 end)
 sendNotification("Put and Break by HsnGL added!")
 
-local function sendWebhook(method)
+local function sendWebhook(method, reason)
    if webhookSent then return end
    
    local count = putCount_
-   local elapsedTime = math.floor(os.clock() - startTime)
+   local elapsedTime = math.floor(os.time() - startTime)
    local h, m, s = getTimes(elapsedTime)
    local Runtime = h.."h "..m.."m "..s.."s"
    webhookSent = true
@@ -565,7 +573,7 @@ local function sendWebhook(method)
       Notify("Sending Webhook, please wait...")
       
       if method == 0 then -- Stopped
-         Webhook(">>> **Auto PnB Webhook**\nUser :\n"..status.." <@"..userID..">\nStatus :\n<:offline:1545964640008405133> STOPPED/ERROR\nTarget :\n"..target.."\nRuntime :\n🕓 "..Runtime.."\n\n```js\n"..os.date("%d/%m/%y %H:%M").."```")
+         Webhook(">>> **Auto PnB Webhook**\nUser :\n"..status.." <@"..userID..">\nStatus :\n<:offline:1545964640008405133> STOPPED/ERROR\nError :\n"..reason.."\nRuntime :\n🕓 "..Runtime.."\n\n```js\n"..os.date("%d/%m/%y %H:%M").."```")
       else -- Finished
          Webhook(">>> **Auto PnB Webhook**\nUser :\n"..status.." <@"..userID..">\nStatus :\n<:tested:1526677186843644035> FINISHED\nTarget :\n"..target.."\nRuntime :\n🕓 "..Runtime.."\n\n```js\n"..os.date("%d/%m/%y %H:%M").."```")
       end
@@ -581,7 +589,7 @@ local function cekBuyer(playerID)
 end        
 
 if cekBuyer(userID) or os.date("%A") == "Friday" then
-   local name = "Tester"
+   local name = "Jum'at Berkah"
    
    if cekBuyer(userID) then
       name = buyerList[userID]
@@ -592,7 +600,7 @@ if cekBuyer(userID) or os.date("%A") == "Friday" then
    name.."\n\n==========================\n"..
    "Status : Premium\n\nNow you can access Premium\nfeatures "..
    "marked with 👑 icon.\n==========================\n\n"..
-   "Last Update: 07/10/2026", "OK")
+   "Last Update: 12/10/2026", "OK")
    
    Premium = true
 else
@@ -602,7 +610,7 @@ else
    "Now you can only access basic features."..
    "\nThere is always free [Premium] on Friday."..
    "\n==========================\n\n"..
-   "Last Update: 07/10/2026", "OK")
+   "Last Update: 12/10/2026", "OK")
    
    Premium = false
 end 
@@ -648,7 +656,7 @@ end
 
 local function saveConfigs()
    local config = getVar()
-   
+   wn(db):set("retrieveGAUT", getValue(0, "hsnpnb_retrieveGAUT"))
    wn(db):set("px", config.px); wn(db):set("py", config.py)
    wn(db):set("dx", config.dx); wn(db):set("dy", config.dy)
    wn(db):set("dropWorld", config.dropWorld)
@@ -662,6 +670,7 @@ local function saveConfigs()
 end
 
 local function loadConfigs()
+   local retGAUT = wn(db):get("retrieveGAUT", false)
    local px, py = wn(db):get("px", -1), wn(db):get("py", -1)
    local dx, dy = wn(db):get("dx", -1), wn(db):get("dy", -1)
    local gbx, gby = wn(db):get("gbx", -1), wn(db):get("gby", -1)
@@ -672,6 +681,11 @@ local function loadConfigs()
    local block, treshold = wn(db):get("block", 5666), wn(db):get("treshold", 200)
    local bdelay, pdelay = wn(db):get("bdelay", 180), wn(db):get("pdelay", 100)
    
+   if retGAUT then
+      config_retrieveGAUT = true
+   end
+      
+   editValue("hsnpnb_retrieveGAUT", retGAUT)
    editValue("hsnpnb_pnbPos", px..", "..py)
    editValue("hsnpnb_dropPos", dx..", "..dy)
    editValue("hsnpnb_GBPos", gbx..", "..gby)
@@ -688,7 +702,7 @@ end
 loadConfigs()
 
 local function stopScript(reason)
-   local elapsedTime = math.floor(os.clock() - startTime)
+   local elapsedTime = math.floor(os.time() - startTime)
    local h, m, s = getTimes(elapsedTime)
    
    log("`c[PnB]`w Runtime: "..h.."h "..m.."m "..s.."s")
@@ -716,7 +730,9 @@ local function stopScript(reason)
        message = reason.."\n\nHaving trouble?\nReport bugs or problem at my Discord Server.\n\nDiscord : @hsndika\n[https://discord.gg/3xKNPbB5qd]",
        confirm = "OK"
    })
-   editValue("hsnpnb_startBtn", false)
+   sendWebhook(0, reason)
+   editToggle("hsnpnb_startBtn", false)
+   webhookSent = false
 end
 
 local function loadWorlds()
@@ -1331,6 +1347,7 @@ local function autoConsume()
    local sleepAdjust = 100
    local Songpyeon = 1056
    local Arroz = 4604
+   local Brainworms = 8542
    
    if not config_autoConsume then return true end
    if Disconnected() or not running_ then return true end
@@ -1362,6 +1379,20 @@ local function autoConsume()
          Sleep(1000)
          sleepAdjust = 3000
          Notify("Consumed Arroz Con Pollo, "..Cek(Arroz).." left")
+      end   
+   end
+   
+   if config_consumeBrainworms and not Brainworms_cd then
+      if Disconnected() or not running_ then return true end
+      if Cek(Brainworms) <= 0 then
+         dialogBuilder("[PnB] Auto Consume", "Vile Vial - Brainworms tidak cukup.", "OK")
+         editValue("hsnpnb_consumeBrainworms", false)
+      else   
+         spr(3, Brainworms, px, py)
+         Brainworms_cd = true
+         Sleep(1000)
+         sleepAdjust = 3000
+         Notify("Consumed Vile Vial - Brainworms, "..Cek(Brainworms).." left")
       end   
    end
    
@@ -1437,7 +1468,7 @@ local function autoCure()
 end
 
 local function mainLoop()
-   webhookSent = false
+   webhookSent = true
    
    if getValue(2, "hsnpnb_keyPass") ~= keyPass and not Premium then
       stopScript("Key Password salah")
@@ -1490,7 +1521,8 @@ local function mainLoop()
       return
    end
    
-   startTime = os.clock()
+   webhookSent = false
+   startTime = os.time()
    loadWorlds()
    editToggle("ModFly", true)
    editToggle("collectfilter_onlytake", true)
@@ -1669,6 +1701,8 @@ addHook(function(var)
       Songpyeon_cd = false
    elseif var.v1 == "OnConsoleMessage" and w(var.v2):find("`%$Food: Breaking Gems`` mod removed") then
       Arroz_cd = false
+   elseif var.v1 == "OnConsoleMessage" and w(var.v2):find("Reduced Fishing Skill`` mod removed") then
+      Brainworms_cd = false
    elseif var.v1 == "OnDialogRequest" and w(var.v2):find("add_popup_name|WrenchMenu|") and gettingStatus_ then
       getStatus_ = true
       gettingStatus_ = false
@@ -1683,6 +1717,13 @@ addHook(function(var)
          Arroz_cd = true
       else
          Arroz_cd = false
+      end
+      
+      if w(var.v2):find("Malady: Brainworms") 
+         or w(var.v2):find("Malady: Vicious Brainworms") then
+         Brainworms_cd = true
+      else
+         Brainworms_cd = false
       end
       
       if w(var.v2):find("Malady: Torn Punching") then
@@ -1826,6 +1867,8 @@ addHook(function(type, name, value)
       end
    elseif name == "hsnpnb_consume" and not value then
       config_autoConsume = false
+   elseif name == "hsnpnb_consumeBrainworms" then
+      config_consumeBrainworms = value   
    elseif name == "hsnpnb_consumeSongpyeon" then
       config_consumeSongpyeon = value
    elseif name == "hsnpnb_consumeArroz" then
